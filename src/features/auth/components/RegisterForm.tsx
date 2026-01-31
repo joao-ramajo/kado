@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	Box,
-	Button,
 	Checkbox,
 	Container,
 	FormControlLabel,
@@ -9,10 +8,14 @@ import {
 	Typography,
 } from "@mui/material";
 import type { AxiosError } from "axios";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { LaravelValidationError } from "../../../api/instance";
+import { FormButton } from "../../../components/form/FormButton";
+import { PasswordInput } from "../../../components/form/PasswordInput";
+import { useAuth } from "../context/AuthContext";
 import { useRegisterMutation } from "../hooks/useRegister";
 import {
 	type RegisterFormData,
@@ -29,12 +32,18 @@ export function RegisterForm() {
 		resolver: zodResolver(registerSchema),
 	});
 
-	const registerMutation = useRegisterMutation();
+	const navigate = useNavigate();
 
-	function onSubmit(data: RegisterFormData) {
-		console.log("dados válidos:", data);
+	const { mutateAsync, isPending } = useRegisterMutation();
+	const { login } = useAuth();
 
-		registerMutation.mutate(data, {
+	async function onSubmit(data: RegisterFormData) {
+		await mutateAsync(data, {
+			onSuccess: (response) => {
+				toast.success(response.message);
+				login(response);
+				navigate("/");
+			},
 			onError: (error: AxiosError<LaravelValidationError>) => {
 				const status = error.response?.status;
 				const apiError = error.response?.data;
@@ -85,22 +94,18 @@ export function RegisterForm() {
 						fullWidth
 					/>
 
-					<TextField
+					<PasswordInput<RegisterFormData>
 						label="Senha"
-						type="password"
-						{...register("password")}
-						error={!!errors.password}
-						helperText={errors.password?.message}
-						fullWidth
+						name="password"
+						register={register}
+						error={errors.password?.message}
 					/>
 
-					<TextField
+					<PasswordInput<RegisterFormData>
 						label="Confirmar senha"
-						type="password"
-						{...register("password_confirmation")}
-						error={!!errors.password_confirmation}
-						helperText={errors.password_confirmation?.message}
-						fullWidth
+						name="password_confirmation"
+						register={register}
+						error={errors.password_confirmation?.message}
 					/>
 
 					<FormControlLabel
@@ -112,9 +117,14 @@ export function RegisterForm() {
 							{errors.terms.message}
 						</Typography>
 					)}
-					<Button type="submit" variant="contained" fullWidth>
+					<FormButton
+						type="submit"
+						variant="contained"
+						fullWidth
+						isLoading={isPending}
+					>
 						Cadastrar
-					</Button>
+					</FormButton>
 
 					<Typography variant="body2" align="center">
 						Já tem conta? <Link to="/login">Entrar</Link>

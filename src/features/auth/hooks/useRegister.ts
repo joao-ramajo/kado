@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import toast from "react-hot-toast";
 import { instance, type LaravelValidationError } from "../../../api/instance";
 import type { RegisterFormData } from "../schemas/register.schema";
 
@@ -24,8 +23,5 @@ export function useRegisterMutation() {
 		RegisterFormData
 	>({
 		mutationFn: postRegister,
-		onSuccess: (response) => {
-			toast.success(response.message);
-		},
 	});
 }

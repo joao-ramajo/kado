@@ -8,6 +8,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "./features/auth/context/AuthContext.tsx";
 
 const root = document.getElementById("root");
 const queryClient = new QueryClient();
@@ -19,8 +20,10 @@ if (!root) {
 createRoot(root).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<Toaster position="bottom-center" />
-			<App />
+			<AuthProvider>
+				<Toaster position="bottom-center" />
+				<App />
+			</AuthProvider>
 		</QueryClientProvider>
 	</StrictMode>,
 );

@@ -35,8 +35,8 @@ export function AboutPage() {
 					<Paper sx={{ p: 3, flex: 1 }}>
 						<Typography fontWeight="bold">Objetividade</Typography>
 						<Typography color="text.secondary">
-							Feito para quem registra gastos rapidamente, inclusive pelo celular
-							no dia a dia.
+							Feito para quem registra gastos rapidamente, inclusive pelo
+							celular no dia a dia.
 						</Typography>
 					</Paper>
 				</Box>

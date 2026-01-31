@@ -1,22 +1,24 @@
+import MenuIcon from "@mui/icons-material/Menu";
 import {
 	AppBar,
 	Box,
 	Button,
-	Toolbar,
-	Typography,
-	IconButton,
 	Drawer,
+	IconButton,
 	List,
 	ListItem,
 	ListItemText,
+	Toolbar,
+	Typography,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../features/auth/context/AuthContext";
 
 export function Header() {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
+	const { user, isAuthenticated, logout } = useAuth();
 
 	const menuItems = [
 		{ label: "Apoie", to: "/apoie" },
@@ -50,13 +52,33 @@ export function Header() {
 						}}
 					>
 						{menuItems.map((item) => (
-							<Button key={item.label} color="inherit">
+							<Button
+								key={item.label}
+								color="inherit"
+								onClick={() => navigate(item.to)}
+							>
 								{item.label}
 							</Button>
 						))}
-						<Button variant="contained" onClick={() => navigate("/login")}>
-							Entrar
-						</Button>
+
+						{isAuthenticated ? (
+							<>
+								<Typography>{user?.name}</Typography>
+								<Button
+									variant="contained"
+									onClick={() => navigate("/dashboard")}
+								>
+									Carteira
+								</Button>
+								<Button color="inherit" onClick={logout}>
+									Sair
+								</Button>
+							</>
+						) : (
+							<Button variant="contained" onClick={() => navigate("/login")}>
+								Entrar
+							</Button>
+						)}
 					</Box>
 
 					{/* Mobile menu button */}
@@ -86,14 +108,36 @@ export function Header() {
 							</ListItem>
 						))}
 
-						<ListItem
-							onClick={() => {
-								navigate("/login");
-								setOpen(false);
-							}}
-						>
-							<ListItemText primary="Entrar" />
-						</ListItem>
+						{isAuthenticated ? (
+							<>
+								<ListItem
+									onClick={() => {
+										navigate("/dashboard");
+										setOpen(false);
+									}}
+								>
+									<ListItemText primary="Carteira" />
+								</ListItem>
+
+								<ListItem
+									onClick={() => {
+										logout();
+										setOpen(false);
+									}}
+								>
+									<ListItemText primary="Sair" />
+								</ListItem>
+							</>
+						) : (
+							<ListItem
+								onClick={() => {
+									navigate("/login");
+									setOpen(false);
+								}}
+							>
+								<ListItemText primary="Entrar" />
+							</ListItem>
+						)}
 					</List>
 				</Box>
 			</Drawer>

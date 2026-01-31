@@ -3,8 +3,8 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import { RegisterPage } from "./features/auth/pages/RegisterPage";
 import { DashbaordPage } from "./features/dashboard/pages/DashboardPage";
-import { Home } from "./features/landing/pages/Home";
 import { AboutPage } from "./features/landing/pages/AboutPage";
+import { Home } from "./features/landing/pages/Home";
 
 export default function App() {
 	return (
@@ -16,7 +16,7 @@ export default function App() {
 					<Route path="/cadastre-se" element={<RegisterPage />} />
 					<Route path="/dashboard" element={<DashbaordPage />} />
 					<Route path="/apoie" element={<AboutPage />} />
-  				</Routes>
+				</Routes>
 			</MainLayout>
 		</BrowserRouter>
 	);

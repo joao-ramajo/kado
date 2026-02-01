@@ -218,6 +218,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 						<Select
 							labelId="category-label"
 							label="Categoria"
+							disabled={isLoading}
 							// value={category}
 							// onChange={(e) => setCategory(e.target.value)}
 						>

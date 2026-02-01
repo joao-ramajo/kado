@@ -152,8 +152,17 @@ export function RecentExpenses() {
 					</Stack>
 				)}
 
+				{/* Loading State */}
+				{isLoading && (
+					<Stack spacing={2}>
+						<ExpenseItemSkeleton />
+						<ExpenseItemSkeleton />
+						<ExpenseItemSkeleton />
+					</Stack>
+				)}
+
 				{/* Error State */}
-				{!isError && isLoading && <ErrorState onRetry={refetch} />}
+				{isError && !isLoading && <ErrorState onRetry={refetch} />}
 
 				{/* Empty State */}
 				{!isLoading && !isError && !hasData && <EmptyState />}

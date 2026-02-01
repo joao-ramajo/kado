@@ -34,7 +34,12 @@ export function Hero() {
 						</Typography>
 
 						<Box display="flex" gap={2}>
-							<Button variant="contained" onClick={() => navigate("/cadastre-se")}>Começar agora</Button>
+							<Button
+								variant="contained"
+								onClick={() => navigate("/cadastre-se")}
+							>
+								Começar agora
+							</Button>
 							<Button variant="outlined">Ver recursos</Button>
 						</Box>
 					</Box>

@@ -96,12 +96,12 @@ export function CategoriesArea() {
 									<CategoryIcon sx={{ color: category.color, fontSize: 20 }} />
 								</Box>
 								<Box sx={{ display: "flex", gap: 0.5 }}>
-									<IconButton size="small" sx={{ color: "text.secondary" }}>
+									{/* <IconButton size="small" sx={{ color: "text.secondary" }}>
 										<EditIcon fontSize="small" />
 									</IconButton>
 									<IconButton size="small" sx={{ color: "error.main" }}>
 										<DeleteIcon fontSize="small" />
-									</IconButton>
+									</IconButton> */}
 								</Box>
 							</Box>
 							<Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>

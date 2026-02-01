@@ -139,7 +139,7 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 						</IconButton>
 					</Tooltip>
 
-					<Tooltip title="Marcar como pago">
+					{/* <Tooltip title="Marcar como pago">
 						<IconButton size="small" onClick={() => console.log()}>
 							<AttachMoney fontSize="small" />
 						</IconButton>
@@ -153,7 +153,7 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 						>
 							<Delete fontSize="small" />
 						</IconButton>
-					</Tooltip>
+					</Tooltip> */}
 				</Stack>
 			</Box>
 			<Box

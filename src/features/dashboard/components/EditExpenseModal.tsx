@@ -103,7 +103,11 @@ export function EditExpenseModal({
 		setValue("status", expense.status);
 
 		setValue("amount", expense.amount);
-		setValue("category_id", expense?.category_id ?? "");
+		setValue("category_id", expense.category_id);
+
+		console.log(expense);
+		// console.log(register);
+
 		const formatted = (expense.amount / 100).toLocaleString("pt-BR", {
 			style: "currency",
 			currency: "BRL",
@@ -113,7 +117,6 @@ export function EditExpenseModal({
 	}, [expense, setValue]);
 
 	function onSubmit(data: UpdateExpenseFormData) {
-		console.log("ta ino");
 		mutateAsync(data, {
 			onSuccess: (response: UpdateExpenseResponse) => {
 				toast.success(response.message);
@@ -237,6 +240,7 @@ export function EditExpenseModal({
 								label="Categoria"
 								value={field.value ?? ""}
 								onChange={field.onChange}
+								emptyLabel="Sem categoria"
 								options={data || []}
 								getLabel={(cat) => cat.name}
 							/>

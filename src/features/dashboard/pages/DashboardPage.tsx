@@ -1,8 +1,7 @@
 import { Home, NavigateNext } from "@mui/icons-material";
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 import { PageTemplate } from "../../../components/PageTemplate";
-import { FinancialSummary } from "../components/FinancialSummary";
-import { RecentExpenses } from "../components/RecentExpenses";
+import { Dashboard } from "../components/Dashboard";
 import ExpenseModalContextProvider from "../context/ExpenseModalContextProvider";
 
 export const DashbaordPage = () => {
@@ -30,8 +29,7 @@ export const DashbaordPage = () => {
 						Dashboard
 					</Typography>
 				</Breadcrumbs>
-				<FinancialSummary />
-				<RecentExpenses />
+				<Dashboard />
 			</PageTemplate>
 		</ExpenseModalContextProvider>
 	);

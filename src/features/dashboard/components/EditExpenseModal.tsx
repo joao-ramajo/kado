@@ -26,9 +26,11 @@ import type { TransitionProps } from "@mui/material/transitions";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import type { LaravelValidationError } from "../../../api/instance";
+import { FormSelect } from "../../../components/form/FormSelect";
+import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
 import type { Expense } from "../hooks/useGetExpense";
 import {
 	type UpdateExpenseResponse,
@@ -64,18 +66,18 @@ export function EditExpenseModal({
 		watch,
 		formState: { errors },
 		reset,
+		control,
 		setError,
 	} = useForm<UpdateExpenseFormData>({
 		resolver: zodResolver(updateExpenseSchema),
 	});
 
 	const [amountDisplay, setAmountDisplay] = useState("");
-
 	const type = watch("type");
 	const status = watch("status");
-	const amount = watch("amount");
 
 	const { mutateAsync } = useUpdateExpenseMutation();
+	const { data } = useGetCategoryListQuery();
 	const queryClient = useQueryClient();
 
 	function handleAmountChange(value: string) {
@@ -99,8 +101,9 @@ export function EditExpenseModal({
 		setValue("title", expense.title);
 		setValue("type", expense.type);
 		setValue("status", expense.status);
-		setValue("amount", expense.amount);
 
+		setValue("amount", expense.amount);
+		setValue("category_id", expense?.category_id ?? "");
 		const formatted = (expense.amount / 100).toLocaleString("pt-BR", {
 			style: "currency",
 			currency: "BRL",
@@ -110,6 +113,7 @@ export function EditExpenseModal({
 	}, [expense, setValue]);
 
 	function onSubmit(data: UpdateExpenseFormData) {
+		console.log("ta ino");
 		mutateAsync(data, {
 			onSuccess: (response: UpdateExpenseResponse) => {
 				toast.success(response.message);
@@ -224,15 +228,25 @@ export function EditExpenseModal({
 							<Schedule sx={{ mr: 1 }} /> Pendente
 						</ToggleButton>
 					</ToggleButtonGroup>
+
+					<Controller
+						name="category_id"
+						control={control}
+						render={({ field }) => (
+							<FormSelect
+								label="Categoria"
+								value={field.value ?? ""}
+								onChange={field.onChange}
+								options={data || []}
+								getLabel={(cat) => cat.name}
+							/>
+						)}
+					/>
 				</DialogContent>
 
 				<DialogActions>
 					<Button onClick={handleClose}>Cancelar</Button>
-					<Button
-						type="submit"
-						variant="contained"
-						disabled={!watch("title") || !amount}
-					>
+					<Button type="submit" variant="contained">
 						Salvar
 					</Button>
 				</DialogActions>

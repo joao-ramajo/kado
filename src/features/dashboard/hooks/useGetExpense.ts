@@ -5,6 +5,7 @@ export type Expense = {
 	id: number;
 	title: string;
 	category: string | null;
+	category_id: string | null;
 	amount: number;
 	payment_date: string | null;
 	due_date: string | null;

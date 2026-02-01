@@ -9,6 +9,7 @@ export const updateExpenseSchema = z.object({
 		.positive("Valor deve ser maior que zero"),
 	type: z.enum(["income", "expense"]),
 	status: z.enum(["paid", "pending", "overdue"]),
+	category_id: z.string().nullable(),
 });
 
 export type UpdateExpenseFormData = z.infer<typeof updateExpenseSchema>;

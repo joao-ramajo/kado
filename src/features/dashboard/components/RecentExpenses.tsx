@@ -1,106 +1,171 @@
-// components/RecentExpenses.tsx
+import { InboxOutlined } from "@mui/icons-material";
 import {
 	Box,
 	Button,
-	Chip,
 	Container,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableRow,
+	Paper,
+	Stack,
 	Typography,
 } from "@mui/material";
+import { type Expense, useGetExpensesQuery } from "../hooks/useGetExpense";
+import { ErrorState } from "./ErrorState";
+import { ExpenseItem } from "./ExpenseItem";
+import { ExpenseItemSkeleton } from "./ExpenseItemSkeleton";
 
-const data = [
-	{
-		id: "9asd0iaaai9wd",
-		desc: "Assinatura ChatGPT Go",
-		status: "Pago",
-		category: "Contas & Serviços",
-		type: "Saída",
-		value: "- R$ 41,39",
-	},
-	{
-		id: "9asd0iaiw9wd",
-		desc: "Uber",
-		status: "Pago",
-		category: "Transporte",
-		type: "Saída",
-		value: "- R$ 16,00",
-	},
-	{
-		id: "9asd0iai9wd",
-		desc: "Spotify",
-		status: "Pendente",
-		category: "Contas & Serviços",
-		type: "Saída",
-		value: "- R$ 31,90",
-	},
-];
+const EmptyState = () => {
+	return (
+		<Paper
+			elevation={0}
+			sx={{
+				p: { xs: 4, sm: 6 },
+				border: "2px dashed",
+				borderColor: "divider",
+				borderRadius: 3,
+				textAlign: "center",
+			}}
+		>
+			<InboxOutlined
+				sx={{
+					fontSize: { xs: 64, sm: 80 },
+					color: "text.secondary",
+					opacity: 0.3,
+					mb: 2,
+				}}
+			/>
+			<Typography
+				variant="h6"
+				color="text.secondary"
+				gutterBottom
+				sx={{ fontWeight: 600 }}
+			>
+				Nenhuma despesa registrada
+			</Typography>
+			<Typography
+				variant="body2"
+				color="text.secondary"
+				sx={{ mb: 3, maxWidth: 400, mx: "auto" }}
+			>
+				Comece a organizar suas finanças criando sua primeira despesa ou
+				importando dados de um arquivo CSV.
+			</Typography>
+			<Button variant="contained" size="large">
+				Criar primeira despesa
+			</Button>
+		</Paper>
+	);
+};
 
 export function RecentExpenses() {
+	const { data, isLoading, isError, refetch } = useGetExpensesQuery();
 
-	return <>Em desenvolvimento</>
+	const hasData = data && data.length > 0;
+
 	return (
-		<Box component="section" sx={{ py: 10 }}>
+		<Box component="section" sx={{ py: { xs: 6, md: 10 } }}>
 			<Container maxWidth="lg">
 				{/* Header */}
 				<Box
 					sx={{
 						display: "flex",
 						justifyContent: "space-between",
-						alignItems: "center",
-						mb: 3,
-						flexWrap: "wrap",
+						alignItems: { xs: "flex-start", md: "center" },
+						mb: { xs: 3, md: 4 },
+						flexDirection: { xs: "column", md: "row" },
 						gap: 2,
 					}}
 				>
-					<Typography variant="h4">Despesas recentes</Typography>
+					<Box>
+						<Typography
+							variant="h4"
+							sx={{
+								fontWeight: 700,
+								fontSize: { xs: "1.75rem", md: "2.125rem" },
+								mb: 0.5,
+							}}
+						>
+							Despesas recentes
+						</Typography>
+						{hasData && !isLoading && (
+							<Typography variant="body2" color="text.secondary">
+								{data.length}{" "}
+								{data.length === 1
+									? "despesa encontrada"
+									: "despesas encontradas"}
+							</Typography>
+						)}
+					</Box>
 
-					<Box display="flex" gap={2}>
-						<Button variant="outlined">Exportar dados</Button>
-						<Button variant="outlined">Importar CSV</Button>
-						<Button variant="contained">Nova despesa</Button>
+					<Box
+						display="flex"
+						gap={{ xs: 1, sm: 2 }}
+						flexWrap="wrap"
+						sx={{ width: { xs: "100%", md: "auto" } }}
+					>
+						<Button
+							variant="outlined"
+							size="medium"
+							sx={{
+								textTransform: "none",
+								fontWeight: 600,
+								flex: { xs: 1, sm: "0 1 auto" },
+								minWidth: { xs: "auto", sm: 120 },
+							}}
+							disabled={isLoading}
+						>
+							Exportar
+						</Button>
+						<Button
+							variant="outlined"
+							size="medium"
+							sx={{
+								textTransform: "none",
+								fontWeight: 600,
+								flex: { xs: 1, sm: "0 1 auto" },
+								minWidth: { xs: "auto", sm: 120 },
+							}}
+							disabled={isLoading}
+						>
+							Importar CSV
+						</Button>
+						<Button
+							variant="contained"
+							size="medium"
+							sx={{
+								textTransform: "none",
+								fontWeight: 600,
+								width: { xs: "100%", sm: "auto" },
+								minWidth: { sm: 140 },
+							}}
+							disabled={isLoading}
+						>
+							Nova despesa
+						</Button>
 					</Box>
 				</Box>
 
-				{/* Tabela */}
-				<Table>
-					<TableHead>
-						<TableRow>
-							<TableCell>Descrição</TableCell>
-							<TableCell>Status</TableCell>
-							<TableCell>Categoria</TableCell>
-							<TableCell>Tipo</TableCell>
-							<TableCell align="right">Valor</TableCell>
-						</TableRow>
-					</TableHead>
+				{/* Loading State */}
+				{isLoading && (
+					<Stack spacing={2}>
+						<ExpenseItemSkeleton />
+						<ExpenseItemSkeleton />
+						<ExpenseItemSkeleton />
+					</Stack>
+				)}
 
-					<TableBody>
-						{data.map((row) => (
-							<TableRow key={row.id}>
-								<TableCell>{row.desc}</TableCell>
+				{/* Error State */}
+				{!isError && isLoading && <ErrorState onRetry={refetch} />}
 
-								<TableCell>
-									<Chip
-										label={row.status}
-										color={row.status === "Pago" ? "success" : "warning"}
-										size="small"
-									/>
-								</TableCell>
+				{/* Empty State */}
+				{!isLoading && !isError && !hasData && <EmptyState />}
 
-								<TableCell>
-									<Chip label={row.category} size="small" />
-								</TableCell>
-
-								<TableCell>{row.type}</TableCell>
-
-								<TableCell align="right">{row.value}</TableCell>
-							</TableRow>
+				{/* Data State */}
+				{!isLoading && !isError && hasData && (
+					<Stack spacing={2}>
+						{data.map((expense: Expense) => (
+							<ExpenseItem key={expense.id} expense={expense} />
 						))}
-					</TableBody>
-				</Table>
+					</Stack>
+				)}
 			</Container>
 		</Box>
 	);

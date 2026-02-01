@@ -12,19 +12,15 @@ import {
 	IconButton,
 	Typography,
 } from "@mui/material";
+import { useCategoryModalContext } from "../context/CategoryModalContextProvider";
 import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
 
 export function CategoriesArea() {
-	// const categories = [
-	// 	{ id: 1, name: "Contas & Serviços", color: "#3b82f6", count: 12 },
-	// 	{ id: 2, name: "Alimentação", color: "#10b981", count: 8 },
-	// 	{ id: 3, name: "Transporte", color: "#f59e0b", count: 5 },
-	// 	{ id: 4, name: "Lazer", color: "#8b5cf6", count: 3 },
-	// ];
+	const { selectAction } = useCategoryModalContext();
 
-    const { data } = useGetCategoryListQuery();
+	const { data } = useGetCategoryListQuery();
 
-    const categories = data ?? [];
+	const categories = data ?? [];
 	return (
 		<Box>
 			<Box
@@ -41,6 +37,7 @@ export function CategoriesArea() {
 				<Button
 					variant="contained"
 					startIcon={<AddIcon />}
+					onClick={() => selectAction("create")}
 					sx={{
 						textTransform: "none",
 						borderRadius: 2,
@@ -71,8 +68,8 @@ export function CategoriesArea() {
 							borderColor: "divider",
 							transition: "all 0.2s",
 							"&:hover": {
-								borderColor: "#3b82f6",
-								boxShadow: `0 4px 12px #3b82f6 20`,
+								borderColor: category.color,
+								boxShadow: `0 4px 12px ${category.color}20`,
 							},
 						}}
 					>
@@ -90,13 +87,13 @@ export function CategoriesArea() {
 										width: 40,
 										height: 40,
 										borderRadius: 2,
-										bgcolor: `#3b82f615`,
+										bgcolor: `${category.color}15`,
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "center",
 									}}
 								>
-									<CategoryIcon sx={{ color: "#3b82f6", fontSize: 20 }} />
+									<CategoryIcon sx={{ color: category.color, fontSize: 20 }} />
 								</Box>
 								<Box sx={{ display: "flex", gap: 0.5 }}>
 									<IconButton size="small" sx={{ color: "text.secondary" }}>
@@ -111,11 +108,11 @@ export function CategoriesArea() {
 								{category.name}
 							</Typography>
 							<Chip
-								label={`0 despesas`}
+								label={`${category.expenses_count} despesas`}
 								size="small"
 								sx={{
-									bgcolor: `#3b82f615`,
-									color: "#3b82f6",
+									bgcolor: `${category.color}15`,
+									color: category.color,
 									fontWeight: 500,
 								}}
 							/>

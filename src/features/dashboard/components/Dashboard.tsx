@@ -2,9 +2,11 @@ import CategoryIcon from "@mui/icons-material/Category";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { Box, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
+import CategoryModalContextProvider from "../context/CategoryModalContextProvider";
+import ExpenseModalContextProvider from "../context/ExpenseModalContextProvider";
+import { CategoriesArea } from "./CategoriesArea";
 import { FinancialSummary } from "./FinancialSummary";
 import { RecentExpenses } from "./RecentExpenses";
-import { CategoriesArea } from "./CategoriesArea";
 
 export function Dashboard() {
 	const [activeTab, setActiveTab] = useState(0);
@@ -20,8 +22,10 @@ export function Dashboard() {
 			icon: <ReceiptLongIcon />,
 			component: (
 				<>
-					<FinancialSummary />
-					<RecentExpenses />
+					<ExpenseModalContextProvider>
+						<FinancialSummary />
+						<RecentExpenses />
+					</ExpenseModalContextProvider>
 				</>
 			),
 		},
@@ -29,7 +33,13 @@ export function Dashboard() {
 			id: 2,
 			label: "Categorias",
 			icon: <CategoryIcon />,
-			component: <CategoriesArea />,
+			component: (
+				<>
+					<CategoryModalContextProvider>
+						<CategoriesArea />
+					</CategoryModalContextProvider>
+				</>
+			),
 		},
 	];
 

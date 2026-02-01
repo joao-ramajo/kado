@@ -4,6 +4,8 @@ import { instance } from "../../../api/instance";
 export type Category = {
 	id: number;
 	name: string;
+	color: string;
+	expenses_count: number;
 };
 
 export type GetCategoryListResponse = Category[];

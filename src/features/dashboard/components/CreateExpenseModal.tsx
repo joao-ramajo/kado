@@ -13,13 +13,9 @@ import {
 	DialogActions,
 	DialogContent,
 	DialogTitle,
-	FormControl,
 	FormLabel,
 	IconButton,
 	InputAdornment,
-	InputLabel,
-	MenuItem,
-	Select,
 	Slide,
 	TextField,
 	ToggleButton,
@@ -33,15 +29,16 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import type { LaravelValidationError } from "../../../api/instance";
+import { FormSelect } from "../../../components/form/FormSelect";
 import {
 	type CreateExpenseResponse,
 	useCreateExpenseMutation,
 } from "../hooks/useCreateExpense";
+import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
 import {
 	type CreateExpenseFormData,
 	createExpenseSchema,
 } from "../schemas/createExpense.schema";
-import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
 
 type CreateExpenseModalProps = {
 	open: boolean;
@@ -69,17 +66,19 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 		defaultValues: {
 			type: "expense",
 			status: "pending",
+			category_id: null,
 		},
 	});
 
 	const [amountDisplay, setAmountDisplay] = useState("");
+	const [categoryId, setCategoryId] = useState<string>("");
 
 	const type = watch("type");
 	const status = watch("status");
 	const amount = watch("amount");
 
 	const { mutateAsync } = useCreateExpenseMutation();
-	const { data, isLoading } = useGetCategoryListQuery();
+	const { data } = useGetCategoryListQuery();
 	const queryClient = useQueryClient();
 
 	function handleAmountChange(value: string) {
@@ -97,35 +96,39 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 	}
 
 	function onSubmit(data: CreateExpenseFormData) {
-		mutateAsync(data, {
-			onSuccess: (response: CreateExpenseResponse) => {
-				toast.success(response.message);
-				queryClient.invalidateQueries({
-					queryKey: ["dashboard-expenses"],
-				});
-				queryClient.invalidateQueries({
-					queryKey: ["dashboard-summary"],
-				});
-				handleClose();
-			},
-			onError: (error: AxiosError<LaravelValidationError>) => {
-				const status = error.response?.status;
-				const apiError = error.response?.data;
-
-				if (status === 422 && apiError?.errors) {
-					Object.entries(apiError.errors).forEach(([field, messages]) => {
-						setError(field as keyof CreateExpenseFormData, {
-							type: "server",
-							message: messages[0],
-						});
+		setValue("category_id", categoryId);
+		mutateAsync(
+			{ ...data, category_id: categoryId ? categoryId : null },
+			{
+				onSuccess: (response: CreateExpenseResponse) => {
+					toast.success(response.message);
+					queryClient.invalidateQueries({
+						queryKey: ["dashboard-expenses"],
 					});
-				} else if (apiError?.message && status === 400) {
-					toast.error(apiError.message);
-				} else {
-					toast.error("Erro inesperado");
-				}
+					queryClient.invalidateQueries({
+						queryKey: ["dashboard-summary"],
+					});
+					handleClose();
+				},
+				onError: (error: AxiosError<LaravelValidationError>) => {
+					const status = error.response?.status;
+					const apiError = error.response?.data;
+
+					if (status === 422 && apiError?.errors) {
+						Object.entries(apiError.errors).forEach(([field, messages]) => {
+							setError(field as keyof CreateExpenseFormData, {
+								type: "server",
+								message: messages[0],
+							});
+						});
+					} else if (apiError?.message && status === 400) {
+						toast.error(apiError.message);
+					} else {
+						toast.error("Erro inesperado");
+					}
+				},
 			},
-		});
+		);
 	}
 
 	function handleClose() {
@@ -213,22 +216,13 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 						</ToggleButton>
 					</ToggleButtonGroup>
 
-					<FormControl fullWidth>
-						<InputLabel id="category-label">Categoria</InputLabel>
-						<Select
-							labelId="category-label"
-							label="Categoria"
-							disabled={isLoading}
-							// value={category}
-							// onChange={(e) => setCategory(e.target.value)}
-						>
-							{data?.map((category) => (
-								<>
-									<MenuItem value="" key={category.id}>{category.name}</MenuItem>
-								</>
-							))}
-						</Select>
-					</FormControl>
+					<FormSelect
+						label="Categoria"
+						value={categoryId}
+						onChange={setCategoryId}
+						options={data || []}
+						getLabel={(cat) => cat.name}
+					/>
 				</DialogContent>
 
 				<DialogActions>

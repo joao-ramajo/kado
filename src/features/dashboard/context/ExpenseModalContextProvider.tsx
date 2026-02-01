@@ -53,10 +53,7 @@ const ExpenseModalContextProvider = ({
 
 	return (
 		<ActionContext.Provider value={{ selectAction, clearAction }}>
-			<CreateExpenseModal
-				open={type === "create" || true}
-				onClose={clearAction}
-			/>
+			<CreateExpenseModal open={type === "create"} onClose={clearAction} />
 			{ensureHasItem(item) && (
 				<EditExpenseModal
 					open={type === "edit"}

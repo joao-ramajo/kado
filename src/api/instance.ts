@@ -24,8 +24,11 @@ instance.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response?.status === 401) {
-			toast.error("Erro de autenticação.");
-			return Promise.reject(error);
+			toast.error("Sua sessão expirou. Faça login novamente.");
+
+			setTimeout(() => {
+				window.location.href = "/login";
+			}, 1000);
 		}
 
 		return Promise.reject(error);

@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background do ícone -->
+  <rect width="512" height="512" fill="#0066FF" rx="115"/>
+  
+  <!-- K branco centralizado -->
+  <g transform="translate(256, 256)">
+    <!-- Barra vertical -->
+    <rect x="-45" y="-80" width="18" height="160" fill="#FFFFFF" rx="4"/>
+    
+    <!-- Diagonal superior -->
+    <polygon points="-27,-25 50,-80 62,-72 -15,-17" fill="#FFFFFF"/>
+    
+    <!-- Diagonal inferior -->
+    <polygon points="-27,25 50,80 62,72 -15,17" fill="#FFFFFF"/>
+    
+    <!-- Círculo de acento - moeda -->
+    <circle cx="56" cy="-72" r="22" fill="#00D4FF"/>
+  </g>
+</svg>

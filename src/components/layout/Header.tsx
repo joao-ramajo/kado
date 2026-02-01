@@ -75,7 +75,7 @@ export function Header() {
 					elevation={0}
 					sx={{
 						backdropFilter: "blur(20px)",
-						backgroundColor: "rgba(25, 118, 210, 0.95)",
+						// backgroundColor: "rgba(25, 118, 210, 0.95)",
 						borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
 					}}
 				>
@@ -98,16 +98,11 @@ export function Header() {
 								alignItems: "center",
 							}}
 						>
-							<Typography
-								variant="h6"
-								sx={{
-									fontWeight: 700,
-									fontSize: { xs: "1.1rem", sm: "1.25rem" },
-									letterSpacing: "-0.5px",
-								}}
-							>
-								Wallet
-							</Typography>
+							<img
+            src="/logo-negativo.svg"
+            alt="Kado"
+            style={{ height: 62 }}
+          />
 						</Link>
 
 						{/* Desktop menu */}
@@ -281,7 +276,7 @@ export function Header() {
 						}}
 					>
 						<Typography variant="h6" sx={{ fontWeight: 700 }}>
-							Wallet
+							Kado
 						</Typography>
 						<IconButton onClick={() => setOpen(false)} aria-label="fechar menu">
 							<CloseIcon />

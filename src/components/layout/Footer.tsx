@@ -15,7 +15,7 @@ export function Footer() {
 				>
 					{/* Coluna 1 */}
 					<Box>
-						<Typography variant="h6">Wallet</Typography>
+						<Typography variant="h6">Kado</Typography>
 						<Typography variant="body2">
 							Controle financeiro sem complicação.
 						</Typography>
@@ -38,14 +38,14 @@ export function Footer() {
 					{/* Coluna 4 */}
 					<Box>
 						<Typography variant="subtitle1">Suporte</Typography>
-						<Typography variant="body2">suporte@filamentwallet.com</Typography>
+						<Typography variant="body2">suporte@kado.com</Typography>
 					</Box>
 				</Box>
 
 				{/* Linha inferior */}
 				<Box sx={{ py: 2 }}>
 					<Typography variant="body2" align="center">
-						© 2026 Wallet. Todos os direitos reservados.
+						© 2026 Kado. Todos os direitos reservados.
 					</Typography>
 				</Box>
 			</Container>

@@ -1,4 +1,3 @@
-// components/Features.tsx
 import { Box, Card, CardContent, Container, Typography } from "@mui/material";
 
 export function Features() {
@@ -8,7 +7,7 @@ export function Features() {
 				{/* Título */}
 				<Box textAlign="center" sx={{ mb: 6 }}>
 					<Typography variant="h4" gutterBottom>
-						O QUE O FILAMENT FAZ
+						O QUE O KADO FAZ
 					</Typography>
 					<Typography variant="body1" color="text.secondary">
 						Ferramentas essenciais para manter suas finanças organizadas

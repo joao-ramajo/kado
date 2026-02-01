@@ -7,13 +7,12 @@ import {
 	Stack,
 	Typography,
 } from "@mui/material";
+import { instance } from "../../../api/instance";
 import { useExpenseModalContext } from "../context/ExpenseModalContextProvider";
 import { type Expense, useGetExpensesQuery } from "../hooks/useGetExpense";
 import { ErrorState } from "./ErrorState";
 import { ExpenseItem } from "./ExpenseItem";
 import { ExpenseItemSkeleton } from "./ExpenseItemSkeleton";
-import { instance } from "../../../api/instance";
-
 
 const EmptyState = () => {
 	return (
@@ -60,15 +59,14 @@ const EmptyState = () => {
 
 export async function downloadExpensesCsv() {
 	try {
-		const response = await instance.get(
-			"/dashboard/spreadsheet/csv/export",
-			{ responseType: "blob" }
-		);
+		const response = await instance.get("/dashboard/spreadsheet/csv/export", {
+			responseType: "blob",
+		});
 
 		// Pegar o nome do arquivo do header Content-Disposition (se disponível)
 		const contentDisposition = response.headers["content-disposition"];
 		let filename = "despesas.csv";
-		
+
 		if (contentDisposition) {
 			const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
 			if (filenameMatch?.[1]) {
@@ -88,10 +86,10 @@ export async function downloadExpensesCsv() {
 		a.style.display = "none";
 		a.href = url;
 		a.download = filename;
-		
+
 		document.body.appendChild(a);
 		a.click();
-		
+
 		// Cleanup
 		document.body.removeChild(a);
 		window.URL.revokeObjectURL(url);

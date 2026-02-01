@@ -28,7 +28,7 @@ export function Hero() {
 						</Typography>
 
 						<Typography variant="body1" sx={{ mb: 3 }}>
-							O Wallet é um gerenciador de contas que ajuda você a acompanhar
+							Kado é um gerenciador de contas que ajuda você a acompanhar
 							pagamentos, recebimentos e controlar seu saldo de forma clara e
 							eficiente.
 						</Typography>

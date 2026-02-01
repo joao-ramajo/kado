@@ -1,0 +1,20 @@
+<svg width="180" height="50" viewBox="0 0 180 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon part -->
+  <g transform="translate(25, 25)">
+    <!-- K -->
+    <rect x="-12" y="-18" width="5" height="36" fill="#0066FF" rx="1.5"/>
+    <polygon points="-7,-6 12,-18 16,-16 -3,-4" fill="#0066FF"/>
+    <polygon points="-7,6 12,18 16,16 -3,4" fill="#0066FF"/>
+    
+    <!-- Coin accent -->
+    <circle cx="14" cy="-16" r="5.5" fill="#00D4FF"/>
+  </g>
+  
+  <!-- Wordmark -->
+  <text x="50" y="33" 
+        font-family="'Helvetica Neue', Arial, sans-serif" 
+        font-size="28" 
+        font-weight="800" 
+        fill="#0066FF" 
+        letter-spacing="-0.5">Kado</text>
+</svg>

@@ -47,9 +47,9 @@ export function Header() {
 	const { user, isAuthenticated, logout } = useAuth();
 
 	const menuItems: MenuItem[] = [
+		{ label: "Home", to: "/", public: true },
 		{ label: "Apoie", to: "/apoie", public: true },
-		{ label: "Guia", to: "/guia", public: true },
-		{ label: "Recursos", to: "/recursos", public: true },
+		{ label: "Guia de Uso", to: "/guia-de-uso", public: true },
 		{ label: "Dashboard", to: "/dashboard", public: false },
 	];
 

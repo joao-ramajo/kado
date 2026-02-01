@@ -1,6 +1,9 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import SettingsIcon from "@mui/icons-material/Settings";
 import {
 	AppBar,
 	Avatar,
@@ -12,7 +15,10 @@ import {
 	List,
 	ListItem,
 	ListItemButton,
+	ListItemIcon,
 	ListItemText,
+	Menu,
+	MenuItem,
 	Slide,
 	Toolbar,
 	Typography,
@@ -21,8 +27,9 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
+import { DeleteAccountDialog } from "../DeleteAccountDialog";
 
-type MenuItem = {
+type ItemMenu = {
 	label: string;
 	to: string;
 	public: boolean;
@@ -44,9 +51,13 @@ function HideOnScroll({ children }: Props) {
 export function Header() {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const { user, isAuthenticated, logout } = useAuth();
 
-	const menuItems: MenuItem[] = [
+	const userMenuOpen = Boolean(anchorEl);
+
+	const menuItems: ItemMenu[] = [
 		{ label: "Home", to: "/", public: true },
 		{ label: "Apoie", to: "/apoie", public: true },
 		{ label: "Guia de Uso", to: "/guia-de-uso", public: true },
@@ -65,7 +76,31 @@ export function Header() {
 	const handleLogout = () => {
 		logout();
 		setOpen(false);
+		setAnchorEl(null);
 	};
+
+	const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleUserMenuClose = () => {
+		setAnchorEl(null);
+	};
+
+	const handleDeleteAccount = () => {
+		setDeleteDialogOpen(true);
+		setAnchorEl(null);
+	};
+
+	// Pega as iniciais do nome para o avatar
+	const initials = user?.name
+		? user.name
+				.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.toUpperCase()
+				.slice(0, 2)
+		: "";
 
 	return (
 		<>
@@ -75,7 +110,6 @@ export function Header() {
 					elevation={0}
 					sx={{
 						backdropFilter: "blur(20px)",
-						// backgroundColor: "rgba(25, 118, 210, 0.95)",
 						borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
 					}}
 				>
@@ -111,7 +145,7 @@ export function Header() {
 								justifyContent: "center",
 							}}
 						>
-							{visibleMenuItems.map((item: MenuItem) => (
+							{visibleMenuItems.map((item) => (
 								<Button
 									key={item.label}
 									color="inherit"
@@ -145,30 +179,6 @@ export function Header() {
 						>
 							{isAuthenticated ? (
 								<>
-									<Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-										<Avatar
-											sx={{
-												width: 32,
-												height: 32,
-												bgcolor: "rgba(255, 255, 255, 0.2)",
-												fontSize: "0.9rem",
-											}}
-										>
-											{user?.name?.charAt(0).toUpperCase()}
-										</Avatar>
-										<Typography
-											sx={{
-												fontSize: "0.9rem",
-												fontWeight: 500,
-												maxWidth: 120,
-												overflow: "hidden",
-												textOverflow: "ellipsis",
-												whiteSpace: "nowrap",
-											}}
-										>
-											{user?.name}
-										</Typography>
-									</Box>
 									<Button
 										variant="contained"
 										onClick={() => navigate("/dashboard")}
@@ -190,21 +200,34 @@ export function Header() {
 									>
 										Carteira
 									</Button>
-									<Button
-										color="inherit"
-										onClick={logout}
+
+									{/* User Menu Button */}
+									<IconButton
+										onClick={handleUserMenuClick}
+										size="small"
 										sx={{
-											textTransform: "none",
-											fontWeight: 500,
-											borderRadius: 2,
-											px: 2,
+											p: 0.5,
 											"&:hover": {
-												backgroundColor: "rgba(255, 255, 255, 0.1)",
+												bgcolor: "rgba(255, 255, 255, 0.1)",
 											},
 										}}
+										aria-controls={userMenuOpen ? "user-menu" : undefined}
+										aria-haspopup="true"
+										aria-expanded={userMenuOpen ? "true" : undefined}
 									>
-										Sair
-									</Button>
+										<Avatar
+											sx={{
+												width: 36,
+												height: 36,
+												bgcolor: "rgba(255, 255, 255, 0.2)",
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												border: "2px solid rgba(255, 255, 255, 0.3)",
+											}}
+										>
+											{initials}
+										</Avatar>
+									</IconButton>
 								</>
 							) : (
 								<Button
@@ -246,6 +269,121 @@ export function Header() {
 					</Toolbar>
 				</AppBar>
 			</HideOnScroll>
+
+			{/* User Dropdown Menu */}
+			<Menu
+				anchorEl={anchorEl}
+				id="user-menu"
+				open={userMenuOpen}
+				onClose={handleUserMenuClose}
+				onClick={handleUserMenuClose}
+				transformOrigin={{ horizontal: "right", vertical: "top" }}
+				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+				slotProps={{
+					paper: {
+						elevation: 0,
+						sx: {
+							minWidth: 240,
+							overflow: "visible",
+							filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.08))",
+							mt: 1.5,
+							borderRadius: 2,
+							border: 1,
+							borderColor: "divider",
+						},
+					},
+				}}
+			>
+				{/* Header do menu com info do usuário */}
+				<Box sx={{ px: 2, py: 1.5, pb: 1 }}>
+					<Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+						{user?.name}
+					</Typography>
+					{/* {user?.email && (
+						<Typography variant="caption" sx={{ color: "text.secondary" }}>
+							{user.email}
+						</Typography>
+					)} */}
+				</Box>
+
+				<Divider sx={{ my: 1 }} />
+
+				{/* Opções do menu */}
+				{/* <MenuItem
+					sx={{
+						py: 1.25,
+						px: 2,
+						"&:hover": {
+							bgcolor: "action.hover",
+						},
+					}}
+				>
+					<ListItemIcon>
+						<AccountCircleIcon fontSize="small" />
+					</ListItemIcon>
+					<ListItemText>
+						<Typography variant="body2">Minha conta</Typography>
+					</ListItemText>
+				</MenuItem> */}
+
+				{/* <MenuItem
+					sx={{
+						py: 1.25,
+						px: 2,
+						"&:hover": {
+							bgcolor: "action.hover",
+						},
+					}}
+				>
+					<ListItemIcon>
+						<SettingsIcon fontSize="small" />
+					</ListItemIcon>
+					<ListItemText>
+						<Typography variant="body2">Configurações</Typography>
+					</ListItemText>
+				</MenuItem> */}
+
+				{/* <Divider sx={{ my: 1 }} /> */}
+
+				<MenuItem
+					onClick={handleLogout}
+					sx={{
+						py: 1.25,
+						px: 2,
+						"&:hover": {
+							bgcolor: "action.hover",
+						},
+					}}
+				>
+					<ListItemIcon>
+						<LogoutIcon fontSize="small" />
+					</ListItemIcon>
+					<ListItemText>
+						<Typography variant="body2">Sair</Typography>
+					</ListItemText>
+				</MenuItem>
+
+				<Divider sx={{ my: 1 }} />
+
+				<MenuItem
+					onClick={handleDeleteAccount}
+					sx={{
+						py: 1.25,
+						px: 2,
+						color: "error.main",
+						"&:hover": {
+							bgcolor: "error.lighter",
+						},
+					}}
+				>
+					<ListItemIcon>
+						<DeleteForeverIcon fontSize="small" color="error" />
+					</ListItemIcon>
+					<ListItemText>
+						<Typography variant="body2">Excluir conta</Typography>
+					</ListItemText>
+				</MenuItem>
+			</Menu>
 
 			{/* Mobile drawer */}
 			<Drawer
@@ -296,7 +434,7 @@ export function Header() {
 										bgcolor: "rgba(255, 255, 255, 0.2)",
 									}}
 								>
-									{user?.name?.charAt(0).toUpperCase()}
+									{initials}
 								</Avatar>
 								<Box>
 									<Typography variant="body2" sx={{ opacity: 0.9, mb: 0.5 }}>
@@ -312,7 +450,7 @@ export function Header() {
 
 					{/* Menu items */}
 					<List sx={{ flex: 1, pt: 1 }}>
-						{visibleMenuItems.map((item: MenuItem) => (
+						{visibleMenuItems.map((item) => (
 							<ListItem key={item.label} disablePadding>
 								<ListItemButton
 									onClick={() => handleNavigation(item.to)}
@@ -335,6 +473,62 @@ export function Header() {
 								</ListItemButton>
 							</ListItem>
 						))}
+
+						{/* Opções de configuração no mobile */}
+						{isAuthenticated && (
+							<>
+								<Divider sx={{ my: 1 }} />
+								<ListItem disablePadding>
+									<ListItemButton
+										sx={{
+											py: 1.5,
+											px: 2.5,
+											"&:hover": {
+												bgcolor: "action.hover",
+											},
+										}}
+									>
+										<ListItemIcon>
+											<SettingsIcon />
+										</ListItemIcon>
+										<ListItemText
+											primary="Configurações"
+											primaryTypographyProps={{
+												fontWeight: 500,
+												fontSize: "1rem",
+											}}
+										/>
+									</ListItemButton>
+								</ListItem>
+								<ListItem disablePadding>
+									<ListItemButton
+										onClick={() => {
+											setDeleteDialogOpen(true);
+											setOpen(false);
+										}}
+										sx={{
+											py: 1.5,
+											px: 2.5,
+											color: "error.main",
+											"&:hover": {
+												bgcolor: "error.lighter",
+											},
+										}}
+									>
+										<ListItemIcon>
+											<DeleteForeverIcon color="error" />
+										</ListItemIcon>
+										<ListItemText
+											primary="Excluir conta"
+											primaryTypographyProps={{
+												fontWeight: 500,
+												fontSize: "1rem",
+											}}
+										/>
+									</ListItemButton>
+								</ListItem>
+							</>
+						)}
 					</List>
 
 					<Divider />
@@ -393,6 +587,13 @@ export function Header() {
 					</Box>
 				</Box>
 			</Drawer>
+
+			{/* Delete Account Dialog */}
+			<DeleteAccountDialog
+				open={deleteDialogOpen}
+				onClose={() => setDeleteDialogOpen(false)}
+				userName={user?.name || ""}
+			/>
 		</>
 	);
 }

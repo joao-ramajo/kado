@@ -1,7 +1,10 @@
 // components/Hero.tsx
 import { Box, Button, Container, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export function Hero() {
+	const navigate = useNavigate();
+
 	return (
 		<Box component="section" sx={{ py: 8 }}>
 			<Container maxWidth="lg">
@@ -31,7 +34,7 @@ export function Hero() {
 						</Typography>
 
 						<Box display="flex" gap={2}>
-							<Button variant="contained">Começar agora</Button>
+							<Button variant="contained" onClick={() => navigate("/cadastre-se")}>Começar agora</Button>
 							<Button variant="outlined">Ver recursos</Button>
 						</Box>
 					</Box>

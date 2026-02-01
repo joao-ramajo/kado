@@ -26,14 +26,6 @@ interface CategoryModalContextProviderProps {
 	children: React.ReactNode;
 }
 
-const _ensureHasItem = (item?: Category) => {
-	if (!item) {
-		return;
-	}
-
-	return item;
-};
-
 const CategoryModalContextProvider = ({
 	children,
 }: CategoryModalContextProviderProps) => {

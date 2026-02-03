@@ -6,6 +6,7 @@ import { DashbaordPage } from "./features/dashboard/pages/DashboardPage";
 import { AboutPage } from "./features/landing/pages/AboutPage";
 import { GuidePage } from "./features/landing/pages/GuidePage";
 import { Home } from "./features/landing/pages/Home";
+import { ResourcesPage } from "./features/landing/pages/ResourcePage";
 import { TermsPage } from "./features/landing/pages/TermsPage";
 import { PrivateRoute } from "./router/PrivateRoute";
 
@@ -28,6 +29,7 @@ export default function App() {
 					<Route path="/apoie" element={<AboutPage />} />
 					<Route path="/termos-e-condicoes" element={<TermsPage />} />
 					<Route path="/guia-de-uso" element={<GuidePage />} />
+					<Route path="/recursos" element={<ResourcesPage />} />
 				</Routes>
 			</MainLayout>
 		</BrowserRouter>

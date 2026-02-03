@@ -185,6 +185,7 @@ export const Hero = () => {
 										bgcolor: "#F8FBFF",
 									},
 								}}
+								onClick={() => navigate("/recursos")}
 							>
 								Ver recursos
 							</Button>

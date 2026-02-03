@@ -248,7 +248,9 @@ export function EditExpenseModal({
 				</DialogContent>
 
 				<DialogActions>
-					<Button onClick={handleClose} disabled={isLoading}>Cancelar</Button>
+					<Button onClick={handleClose} disabled={isLoading}>
+						Cancelar
+					</Button>
 					<Button type="submit" variant="contained" loading={isLoading}>
 						Salvar
 					</Button>

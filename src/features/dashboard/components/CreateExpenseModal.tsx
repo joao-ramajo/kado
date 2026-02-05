@@ -25,7 +25,7 @@ import {
 import type { TransitionProps } from "@mui/material/transitions";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import type { LaravelValidationError } from "../../../api/instance";
@@ -70,7 +70,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 			type: "expense",
 			status: "pending",
 			category_id: null,
-			source_id: 0,
+			source_id: null,
 		},
 	});
 
@@ -100,6 +100,11 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 
 		setAmountDisplay(formatted);
 	}
+
+	useEffect(() => {
+		setValue("source_id", defaultSource?.id);
+
+	}, [defaultSource, setValue]);
 
 	function onSubmit(data: CreateExpenseFormData) {
 		mutateAsync(data, {

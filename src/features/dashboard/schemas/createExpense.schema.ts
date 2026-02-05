@@ -9,6 +9,7 @@ export const createExpenseSchema = z.object({
 	type: z.enum(["income", "expense"]),
 	status: z.enum(["paid", "pending", "overdue"]),
 	category_id: z.number().nullable().optional(),
+	source_id: z.number().nullable().optional(),
 });
 
 export type CreateExpenseFormData = z.infer<typeof createExpenseSchema>;

@@ -34,11 +34,13 @@ import {
 	useCreateExpenseMutation,
 } from "../hooks/useCreateExpense";
 import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
+import { useGetSourceQuery } from "../hooks/useGetSourceListQuery";
 import {
 	type CreateExpenseFormData,
 	createExpenseSchema,
 } from "../schemas/createExpense.schema";
 import { CategoriesSelect } from "./CategoriesSelect";
+import { SourcesSelect } from "./SourcesSelect";
 
 type CreateExpenseModalProps = {
 	open: boolean;
@@ -68,6 +70,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 			type: "expense",
 			status: "pending",
 			category_id: null,
+			source_id: 0,
 		},
 	});
 
@@ -80,6 +83,9 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 	const { mutateAsync, isPending: isLoading } = useCreateExpenseMutation();
 	const { data } = useGetCategoryListQuery();
 	const queryClient = useQueryClient();
+	const { data: sourceDataList } = useGetSourceQuery();
+
+	const defaultSource = sourceDataList?.find((s) => s.is_default) ?? null;
 
 	function handleAmountChange(value: string) {
 		const numeric = value.replace(/\D/g, "");
@@ -142,7 +148,8 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 			dashboard-summary
 			TransitionComponent={Transition}
 		>
-			<form onSubmit={handleSubmit(onSubmit)}>
+			{/* <form onSubmit={handleSubmit(onSubmit)}> */}
+			<form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))}>
 				<DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
 					<Typography fontWeight={700}>Nova movimentação</Typography>
 					<IconButton onClick={handleClose}>
@@ -220,6 +227,18 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 								value={field.value ?? null}
 								onChange={field.onChange}
 								categories={data || []}
+							/>
+						)}
+					/>
+
+					<Controller
+						name="source_id"
+						control={control}
+						render={({ field }) => (
+							<SourcesSelect
+								value={field.value ?? defaultSource?.id ?? null}
+								onChange={field.onChange}
+								sources={sourceDataList || []}
 							/>
 						)}
 					/>

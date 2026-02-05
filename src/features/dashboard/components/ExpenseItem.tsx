@@ -5,6 +5,7 @@ import {
 	Delete,
 	Edit,
 	Schedule,
+	AccountBalanceWallet,
 } from "@mui/icons-material";
 import {
 	alpha,
@@ -80,7 +81,6 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 			sx={{
 				px: { xs: 2, sm: 2.5 },
 				py: { xs: 1, sm: 1.5 },
-				// px: {}
 				border: "1px solid",
 				borderColor: "divider",
 				borderRadius: 2,
@@ -177,25 +177,49 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 				gap={{ xs: 2, sm: 3 }}
 				alignItems={{ xs: "stretch", sm: "center" }}
 			>
-				{/* Seção Principal - Título e Categoria */}
+				{/* Seção Principal - Categoria e Fonte */}
 				<Box flex={1} minWidth={0}>
-					<Box display="flex" alignItems="center" gap={0.5}>
-						<CategoryIcon
-							sx={{
-								fontSize: 16,
-								color: "text.secondary",
-							}}
-						/>
-						<Typography
-							variant="caption"
-							color="text.secondary"
-							sx={{
-								fontSize: "0.85rem",
-							}}
-						>
-							{expense.category ?? "Sem categoria"}
-						</Typography>
-					</Box>
+					<Stack spacing={0.5}>
+						{/* Categoria */}
+						<Box display="flex" alignItems="center" gap={0.5}>
+							<CategoryIcon
+								sx={{
+									fontSize: 16,
+									color: "text.secondary",
+								}}
+							/>
+							<Typography
+								variant="caption"
+								color="text.secondary"
+								sx={{
+									fontSize: "0.85rem",
+								}}
+							>
+								{expense.category ?? "Sem categoria"}
+							</Typography>
+						</Box>
+
+						{/* Fonte */}
+						{expense.source_name && (
+							<Box display="flex" alignItems="center" gap={0.5}>
+								<AccountBalanceWallet
+									sx={{
+										fontSize: 16,
+										color: "text.secondary",
+									}}
+								/>
+								<Typography
+									variant="caption"
+									color="text.secondary"
+									sx={{
+										fontSize: "0.85rem",
+									}}
+								>
+									{expense.source_name}
+								</Typography>
+							</Box>
+						)}
+					</Stack>
 				</Box>
 
 				{/* Seção de Datas - Mobile: horizontal, Desktop: vertical */}
@@ -208,45 +232,6 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 						minWidth: { sm: 140 },
 					}}
 				>
-					{/* Data de Vencimento */}
-					{/* <Box display="flex" alignItems="center" gap={0.75}>
-						<CalendarMonth
-							sx={{
-								fontSize: 16,
-								color:
-									expense.status === "overdue"
-										? "error.main"
-										: "text.secondary",
-							}}
-						/>
-						<Box>
-							<Typography
-								variant="caption"
-								sx={{
-									display: "block",
-									fontSize: "0.7rem",
-									color: "text.secondary",
-									lineHeight: 1.2,
-								}}
-							>
-								Vencimento
-							</Typography>
-							<Typography
-								variant="body2"
-								sx={{
-									fontSize: "0.85rem",
-									fontWeight: 500,
-									color:
-										expense.status === "overdue"
-											? "error.main"
-											: "text.primary",
-								}}
-							>
-								{formatDate(expense.due_date)}
-							</Typography>
-						</Box>
-					</Box> */}
-
 					{/* Data de Pagamento */}
 					{expense.payment_date && (
 						<Box display="flex" alignItems="center" gap={0.75}>

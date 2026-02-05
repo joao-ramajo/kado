@@ -154,19 +154,6 @@ export function RecentExpenses() {
 					>
 						Exportar Backup
 					</Button>
-					{/* <Button
-						variant="outlined"
-						size="medium"
-						sx={{
-							textTransform: "none",
-							fontWeight: 600,
-							flex: { xs: 1, sm: "0 1 auto" },
-							minWidth: { xs: "auto", sm: 120 },
-						}}
-						disabled={isLoading}
-					>
-						Importar CSV
-					</Button> */}
 					<Button
 						variant="contained"
 						size="medium"
@@ -193,15 +180,6 @@ export function RecentExpenses() {
 				</Stack>
 			)}
 
-			{/* Loading State */}
-			{isLoading && (
-				<Stack spacing={2}>
-					<ExpenseItemSkeleton />
-					<ExpenseItemSkeleton />
-					<ExpenseItemSkeleton />
-				</Stack>
-			)}
-
 			{/* Error State */}
 			{isError && !isLoading && <ErrorState onRetry={refetch} />}
 
@@ -212,7 +190,10 @@ export function RecentExpenses() {
 			{!isLoading && !isError && hasData && (
 				<Stack spacing={2}>
 					{data.map((expense: Expense) => (
-						<ExpenseItem key={expense.id} expense={expense} />
+						<ExpenseItem
+							key={expense.id}
+							expense={expense}
+						/>
 					))}
 				</Stack>
 			)}

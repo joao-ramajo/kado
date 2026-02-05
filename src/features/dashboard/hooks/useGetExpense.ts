@@ -11,7 +11,8 @@ export type Expense = {
 	due_date: string | null;
 	type: "expense" | "income";
 	status: "paid" | "pending" | "overdue";
-	source_id: number
+	source_id: number;
+	source_name: string;
 };
 
 export type GetExpenseResponse = Expense[];

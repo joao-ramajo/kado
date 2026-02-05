@@ -1,12 +1,15 @@
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import CategoryIcon from "@mui/icons-material/Category";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { Box, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 import CategoryModalContextProvider from "../context/CategoryModalContextProvider";
 import ExpenseModalContextProvider from "../context/ExpenseModalContextProvider";
+import SourceModalContextProvider from "../context/SourceModalContextProvider";
 import { CategoriesArea } from "./CategoriesArea";
 import { FinancialSummary } from "./FinancialSummary";
 import { RecentExpenses } from "./RecentExpenses";
+import { SourcesArea } from "./SourceArea";
 
 export function Dashboard() {
 	const [activeTab, setActiveTab] = useState(0);
@@ -21,12 +24,10 @@ export function Dashboard() {
 			label: "Despesas",
 			icon: <ReceiptLongIcon />,
 			component: (
-				<>
-					<ExpenseModalContextProvider>
-						<FinancialSummary />
-						<RecentExpenses />
-					</ExpenseModalContextProvider>
-				</>
+				<ExpenseModalContextProvider>
+					<FinancialSummary />
+					<RecentExpenses />
+				</ExpenseModalContextProvider>
 			),
 		},
 		{
@@ -34,11 +35,19 @@ export function Dashboard() {
 			label: "Categorias",
 			icon: <CategoryIcon />,
 			component: (
-				<>
-					<CategoryModalContextProvider>
-						<CategoriesArea />
-					</CategoryModalContextProvider>
-				</>
+				<CategoryModalContextProvider>
+					<CategoriesArea />
+				</CategoryModalContextProvider>
+			),
+		},
+		{
+			id: 3,
+			icon: <AccountBalanceWalletIcon />,
+			label: "Fontes",
+			component: (
+				<SourceModalContextProvider>
+					<SourcesArea />
+				</SourceModalContextProvider>
 			),
 		},
 	];

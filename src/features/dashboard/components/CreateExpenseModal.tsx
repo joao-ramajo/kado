@@ -103,7 +103,6 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 
 	useEffect(() => {
 		setValue("source_id", defaultSource?.id);
-
 	}, [defaultSource, setValue]);
 
 	function onSubmit(data: CreateExpenseFormData) {

@@ -52,8 +52,7 @@ const statusConfig = {
 	},
 };
 
-export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
-
+export function ExpenseItem({ expense }: ExpenseItemProps) {
 	const status = statusConfig[expense.status];
 	const isIncome = expense.type === "income";
 

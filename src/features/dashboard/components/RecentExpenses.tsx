@@ -1,11 +1,13 @@
 import { InboxOutlined } from "@mui/icons-material";
-import { Button, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import { useDownloadExpensesCsv } from "../hooks/useDownloadExpensesCsv";
 import { type Expense, useGetExpensesQuery } from "../hooks/useGetExpense";
 import { ErrorState } from "./ErrorState";
 import { ExpenseItem } from "./ExpenseItem";
 import { ExpenseItemSkeleton } from "./ExpenseItemSkeleton";
 import { RecentExpensesActions } from "./RecentExpensesActions";
+import { RecentExpensesFilter } from "./RecentExpensesFilter";
 
 const EmptyState = () => {
 	return (
@@ -51,11 +53,22 @@ const EmptyState = () => {
 };
 
 export function RecentExpenses() {
-	const { data, isLoading, isError, refetch } = useGetExpensesQuery();
+	const [searchParams, setSearchParams] = useSearchParams();
 
+	const statusFilter =
+		(searchParams.get("status") as "all" | "paid" | "pending") ?? "all";
+
+	const handleStatusChange = (value: "all" | "paid" | "pending") => {
+		setSearchParams((prev) => {
+			const params = new URLSearchParams(prev);
+			params.set("status", value);
+			return params;
+		});
+	};
+	const { data, isLoading, isError, refetch } =
+		useGetExpensesQuery(statusFilter);
 	const hasData = !!data?.length;
 	const total = data ? data.length : 0;
-
 	return (
 		<>
 			<RecentExpensesActions
@@ -64,6 +77,11 @@ export function RecentExpenses() {
 				total={total ?? 0}
 				downloadExpensesCsv={useDownloadExpensesCsv}
 			/>
+			<RecentExpensesFilter
+				value={statusFilter}
+				onChange={handleStatusChange}
+			/>
+			<Box mb={3} />
 			{/* Loading State */}
 			{isLoading && (
 				<Stack spacing={2}>

@@ -17,14 +17,18 @@ export type Expense = {
 
 export type GetExpenseResponse = Expense[];
 
-export const getExpenses = async (): Promise<GetExpenseResponse> => {
-	const response = await instance.get("/dashboard/expenses");
+export const getExpenses = async (
+	status: "all" | "paid" | "pending",
+): Promise<GetExpenseResponse> => {
+	const response = await instance.get("/dashboard/expenses", {
+		params: { status },
+	});
 	return response.data;
 };
 
-export const useGetExpensesQuery = () => {
+export const useGetExpensesQuery = (status: "all" | "paid" | "pending") => {
 	return useQuery({
-		queryKey: ["dashboard-expenses"],
-		queryFn: getExpenses,
+		queryKey: ["dashboard-expenses", status],
+		queryFn: () => getExpenses(status),
 	});
 };

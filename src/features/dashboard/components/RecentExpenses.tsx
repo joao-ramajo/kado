@@ -1,11 +1,11 @@
 import { InboxOutlined } from "@mui/icons-material";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Button, Paper, Stack, Typography } from "@mui/material";
 import { instance } from "../../../api/instance";
-import { useExpenseModalContext } from "../context/ExpenseModalContextProvider";
 import { type Expense, useGetExpensesQuery } from "../hooks/useGetExpense";
 import { ErrorState } from "./ErrorState";
 import { ExpenseItem } from "./ExpenseItem";
 import { ExpenseItemSkeleton } from "./ExpenseItemSkeleton";
+import { RecentExpensesActions } from "./RecentExpensesActions";
 
 const EmptyState = () => {
 	return (
@@ -97,99 +97,17 @@ export async function downloadExpensesCsv() {
 export function RecentExpenses() {
 	const { data, isLoading, isError, refetch } = useGetExpensesQuery();
 
-	const hasData = data && data.length > 0;
-	const { selectAction } = useExpenseModalContext();
-
-	// const mutateImport = async (formData: FormData) => {
-	// 	await instance.post("/dashboard/spreadsheet/csv/import", formData, {
-	// 		headers: { "Content-Type": "multipart/form-data" },
-	// 	});
-	// };
+	const hasData = !!data?.length;
+	const total = data ? data.length : 0;
 
 	return (
 		<>
-			{/* Header */}
-			{/* <input
-				// type="file"
-				// accept=".csv"
-				// onChange={(e) => {
-				// 	const file = e.target.files?.[0];
-				// 	if (!file) return;
-
-				// 	const formData = new FormData();
-				// 	formData.append("file", file);
-
-				// 	mutateImport(formData);
-				// }}
-			/> */}
-			<Box
-				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: { xs: "flex-start", md: "center" },
-					mb: { xs: 3, md: 4 },
-					flexDirection: { xs: "column", md: "row" },
-					gap: 2,
-				}}
-			>
-				<Box>
-					<Typography
-						variant="h4"
-						sx={{
-							fontWeight: 700,
-							fontSize: { xs: "1.75rem", md: "2.125rem" },
-							mb: 0.5,
-						}}
-					>
-						Despesas recentes
-					</Typography>
-					{hasData && !isLoading && (
-						<Typography variant="body2" color="text.secondary">
-							{data.length}{" "}
-							{data.length === 1
-								? "despesa encontrada"
-								: "despesas encontradas"}
-						</Typography>
-					)}
-				</Box>
-
-				<Box
-					display="flex"
-					gap={{ xs: 1, sm: 2 }}
-					flexWrap="wrap"
-					sx={{ width: { xs: "100%", md: "auto" } }}
-				>
-					<Button
-						variant="outlined"
-						size="medium"
-						sx={{
-							textTransform: "none",
-							fontWeight: 600,
-							flex: { xs: 1, sm: "0 1 auto" },
-							minWidth: { xs: "auto", sm: 120 },
-						}}
-						disabled={isLoading}
-						onClick={downloadExpensesCsv}
-					>
-						Exportar Backup
-					</Button>
-					<Button
-						variant="contained"
-						size="medium"
-						sx={{
-							textTransform: "none",
-							fontWeight: 600,
-							width: { xs: "100%", sm: "auto" },
-							minWidth: { sm: 140 },
-						}}
-						disabled={isLoading}
-						onClick={() => selectAction("create")}
-					>
-						Nova despesa
-					</Button>
-				</Box>
-			</Box>
-
+			<RecentExpensesActions
+				hasData={hasData}
+				isLoading={isLoading}
+				total={total ?? 0}
+				downloadExpensesCsv={downloadExpensesCsv}
+			/>
 			{/* Loading State */}
 			{isLoading && (
 				<Stack spacing={2}>
@@ -206,7 +124,7 @@ export function RecentExpenses() {
 			{!isLoading && !isError && !hasData && <EmptyState />}
 
 			{/* Data State */}
-			{!isLoading && !isError && hasData && (
+			{!isLoading && !isError && hasData && data.length > 0 && (
 				<Stack spacing={2}>
 					{data.map((expense: Expense) => (
 						<ExpenseItem key={expense.id} expense={expense} />

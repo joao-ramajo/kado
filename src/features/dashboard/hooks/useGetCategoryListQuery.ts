@@ -6,6 +6,7 @@ export type Category = {
 	name: string;
 	color: string;
 	expenses_count: number;
+	expenses_total_amount: number;
 };
 
 export type GetCategoryListResponse = Category[];

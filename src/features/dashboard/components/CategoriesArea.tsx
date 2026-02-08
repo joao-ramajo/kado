@@ -9,6 +9,7 @@ import {
 	Chip,
 	Typography,
 } from "@mui/material";
+import { formatCurrency } from "../../../utils/formatCurrency";
 import { useCategoryModalContext } from "../context/CategoryModalContextProvider";
 import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
 
@@ -113,6 +114,28 @@ export function CategoriesArea() {
 									fontWeight: 500,
 								}}
 							/>
+							<CardContent sx={{ pb: 1 }}>
+								{category.expenses_total_amount && (
+									<Box
+										sx={{
+											mt: 2,
+											pt: 2,
+											borderTop: 1,
+											borderColor: "divider",
+										}}
+									>
+										<Typography variant="caption" color="text.secondary">
+											Total gasto
+										</Typography>
+										<Typography
+											variant="h6"
+											sx={{ fontWeight: 700, color: category.color }}
+										>
+											{formatCurrency(category.expenses_total_amount)}
+										</Typography>
+									</Box>
+								)}
+							</CardContent>
 						</CardContent>
 					</Card>
 				))}

@@ -9,9 +9,11 @@ import {
 	Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/context/AuthContext";
 
 export const Hero = () => {
 	const navigate = useNavigate();
+	const { isAuthenticated } = useAuth();
 
 	const benefits: { id: number; label: string }[] = [
 		{
@@ -143,29 +145,56 @@ export const Hero = () => {
 						</Box>
 
 						<Box display="flex" gap={2} flexWrap="wrap">
-							<Button
-								variant="contained"
-								size="large"
-								onClick={() => navigate("/cadastre-se")}
-								sx={{
-									bgcolor: "#0066FF",
-									px: 4,
-									py: 1.5,
-									fontSize: "1rem",
-									fontWeight: 600,
-									textTransform: "none",
-									borderRadius: 2,
-									boxShadow: "0 4px 14px rgba(0, 102, 255, 0.25)",
-									"&:hover": {
-										bgcolor: "#0052CC",
-										boxShadow: "0 6px 20px rgba(0, 102, 255, 0.35)",
-										transform: "translateY(-2px)",
-									},
-									transition: "all 0.3s ease",
-								}}
-							>
-								Começar agora
-							</Button>
+							{isAuthenticated ? (
+								<Button
+									variant="contained"
+									size="large"
+									onClick={() => navigate("/dashboard")}
+									sx={{
+										bgcolor: "#0066FF",
+										px: 4,
+										py: 1.5,
+										fontSize: "1rem",
+										fontWeight: 600,
+										textTransform: "none",
+										borderRadius: 2,
+										boxShadow: "0 4px 14px rgba(0, 102, 255, 0.25)",
+										"&:hover": {
+											bgcolor: "#0052CC",
+											boxShadow: "0 6px 20px rgba(0, 102, 255, 0.35)",
+											transform: "translateY(-2px)",
+										},
+										transition: "all 0.3s ease",
+									}}
+								>
+									Acessar dashboard
+								</Button>
+							) : (
+								<Button
+									variant="contained"
+									size="large"
+									onClick={() => navigate("/login")}
+									sx={{
+										bgcolor: "#0066FF",
+										px: 4,
+										py: 1.5,
+										fontSize: "1rem",
+										fontWeight: 600,
+										textTransform: "none",
+										borderRadius: 2,
+										boxShadow: "0 4px 14px rgba(0, 102, 255, 0.25)",
+										"&:hover": {
+											bgcolor: "#0052CC",
+											boxShadow: "0 6px 20px rgba(0, 102, 255, 0.35)",
+											transform: "translateY(-2px)",
+										},
+										transition: "all 0.3s ease",
+									}}
+								>
+									Começar agora
+								</Button>
+							)}
+
 							<Button
 								variant="outlined"
 								size="large"

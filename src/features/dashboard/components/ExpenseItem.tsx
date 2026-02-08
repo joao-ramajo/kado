@@ -18,6 +18,7 @@ import {
 	Typography,
 	useTheme,
 } from "@mui/material";
+import type React from "react";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { useExpenseModalContext } from "../context/ExpenseModalContextProvider";
 import { useDeleteExpenseMutation } from "../hooks/useDeleteExpenseMutation";
@@ -52,7 +53,7 @@ const statusConfig = {
 };
 
 export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
-	const theme = useTheme();
+
 	const status = statusConfig[expense.status];
 	const isIncome = expense.type === "income";
 
@@ -76,43 +77,7 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 	}
 
 	return (
-		<Paper
-			elevation={0}
-			sx={{
-				px: { xs: 2, sm: 2.5 },
-				py: { xs: 1, sm: 1.5 },
-				border: "1px solid",
-				borderColor: "divider",
-				borderRadius: 2,
-				transition: "all 0.2s ease-in-out",
-				cursor: onClick ? "pointer" : "default",
-				position: "relative",
-				overflow: "hidden",
-				"&:hover": onClick
-					? {
-							borderColor: isIncome ? "success.main" : "primary.main",
-							boxShadow: `0 4px 12px ${alpha(
-								isIncome
-									? theme.palette.success.main
-									: theme.palette.primary.main,
-								0.15,
-							)}`,
-							transform: "translateY(-2px)",
-						}
-					: {},
-				"&::before": {
-					content: '""',
-					position: "absolute",
-					left: 0,
-					top: 0,
-					bottom: 0,
-					width: 4,
-					bgcolor: isIncome ? "success.main" : "primary.main",
-					opacity: expense.status === "paid" ? 1 : 0.3,
-				},
-			}}
-			onClick={onClick}
-		>
+		<BodyCard>
 			<Box
 				sx={{
 					display: "flex",
@@ -336,6 +301,65 @@ export function ExpenseItem({ expense, onClick }: ExpenseItemProps) {
 					/>
 				</Box>
 			</Box>
-		</Paper>
+		</BodyCard>
 	);
 }
+
+type BodyCardProps = {
+	children: React.ReactNode;
+
+	onClick?: () => void;
+
+	isIncome?: boolean; // define cor (income vs expense)
+	status?: "paid" | "pending"; // usado no before
+};
+
+const BodyCard = ({
+	children,
+	onClick,
+	isIncome = false,
+	status = "paid",
+}: BodyCardProps) => {
+	const theme = useTheme();
+	return (
+		<Paper
+			elevation={0}
+			sx={{
+				px: { xs: 2, sm: 2.5 },
+				py: { xs: 1, sm: 1.5 },
+				border: "1px solid",
+				borderColor: "divider",
+				borderRadius: 2,
+				transition: "all 0.2s ease-in-out",
+				cursor: onClick ? "pointer" : "default",
+				position: "relative",
+				overflow: "hidden",
+				"&:hover": onClick
+					? {
+							borderColor: isIncome ? "success.main" : "primary.main",
+							boxShadow: `0 4px 12px ${alpha(
+								isIncome
+									? theme.palette.success.main
+									: theme.palette.primary.main,
+								0.15,
+							)}`,
+							transform: "translateY(-2px)",
+						}
+					: {},
+				"&::before": {
+					content: '""',
+					position: "absolute",
+					left: 0,
+					top: 0,
+					bottom: 0,
+					width: 4,
+					bgcolor: isIncome ? "success.main" : "primary.main",
+					opacity: status === "paid" ? 1 : 0.3,
+				},
+			}}
+			onClick={onClick}
+		>
+			{children}
+		</Paper>
+	);
+};

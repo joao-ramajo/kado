@@ -54,6 +54,29 @@ const Transition = React.forwardRef(function Transition(
 	return <Slide direction="up" ref={ref} {...props} />;
 });
 
+const getCurrentDateDisplay = () => {
+	const now = new Date();
+	const day = String(now.getDate()).padStart(2, "0");
+	const month = String(now.getMonth() + 1).padStart(2, "0");
+	const year = now.getFullYear();
+	return `${day}-${month}-${year}`;
+};
+
+const formatDisplayDateInput = (value: string) => {
+	const numeric = value.replace(/\D/g, "").slice(0, 8);
+	if (numeric.length <= 2) return numeric;
+	if (numeric.length <= 4) return `${numeric.slice(0, 2)}-${numeric.slice(2)}`;
+	return `${numeric.slice(0, 2)}-${numeric.slice(2, 4)}-${numeric.slice(4)}`;
+};
+
+const toBackendDate = (value: string | null | undefined) => {
+	if (!value) return null;
+	const match = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+	if (!match) return null;
+	const [, day, month, year] = match;
+	return `${year}-${month}-${day}`;
+};
+
 export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 	const {
 		register,
@@ -69,6 +92,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 		defaultValues: {
 			type: "expense",
 			status: "pending",
+			payment_date: null,
 			category_id: null,
 			source_id: null,
 		},
@@ -79,6 +103,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 	const type = watch("type");
 	const status = watch("status");
 	const amount = watch("amount");
+	const paymentDate = watch("payment_date");
 
 	const { mutateAsync, isPending: isLoading } = useCreateExpenseMutation();
 	const { data } = useGetCategoryListQuery();
@@ -105,8 +130,25 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 		setValue("source_id", defaultSource?.id);
 	}, [defaultSource, setValue]);
 
+	useEffect(() => {
+		if (status !== "paid") {
+			setValue("payment_date", null);
+			return;
+		}
+
+		if (!paymentDate) {
+			setValue("payment_date", getCurrentDateDisplay());
+		}
+	}, [status, paymentDate, setValue]);
+
 	function onSubmit(data: CreateExpenseFormData) {
-		mutateAsync(data, {
+		const normalizedData: CreateExpenseFormData = {
+			...data,
+			payment_date:
+				data.status === "paid" ? toBackendDate(data.payment_date) : null,
+		};
+
+		mutateAsync(normalizedData, {
 			onSuccess: (response: CreateExpenseResponse) => {
 				queryClient.invalidateQueries({
 					queryKey: ["dashboard-expenses"],
@@ -229,6 +271,32 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 							<Schedule sx={{ mr: 1 }} /> Pendente
 						</ToggleButton>
 					</ToggleButtonGroup>
+
+					{status === "paid" && (
+						<TextField
+							label="Data de pagamento"
+							fullWidth
+							value={paymentDate ?? ""}
+							onChange={(e) =>
+								setValue(
+									"payment_date",
+									formatDisplayDateInput(e.target.value),
+									{
+										shouldValidate: true,
+									},
+								)
+							}
+							placeholder="dd-mm-aaaa"
+							slotProps={{
+								htmlInput: {
+									inputMode: "numeric",
+									maxLength: 10,
+								},
+							}}
+							error={!!errors.payment_date}
+							helperText={errors.payment_date?.message}
+						/>
+					)}
 
 					<Controller
 						name="category_id"

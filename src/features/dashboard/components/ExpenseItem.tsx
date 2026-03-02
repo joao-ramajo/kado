@@ -58,7 +58,10 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 
 	const formatDate = (dateString: string | null) => {
 		if (!dateString) return null;
-		const date = new Date(dateString);
+		const match = dateString.match(/\d{4}-\d{2}-\d{2}/);
+		if (!match) return null;
+		const [year, month, day] = match[0].split("-").map(Number);
+		const date = new Date(year, month - 1, day);
 		return date.toLocaleDateString("pt-BR", {
 			day: "2-digit",
 			month: "short",

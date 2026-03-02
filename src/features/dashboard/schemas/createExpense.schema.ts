@@ -8,6 +8,7 @@ export const createExpenseSchema = z.object({
 		.positive("Valor deve ser maior que zero"),
 	type: z.enum(["income", "expense"]),
 	status: z.enum(["paid", "pending", "overdue"]),
+	payment_date: z.string().nullable().optional(),
 	category_id: z.number().nullable().optional(),
 	source_id: z.number().nullable().optional(),
 });

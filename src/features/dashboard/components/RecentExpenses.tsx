@@ -1,5 +1,14 @@
-import { InboxOutlined } from "@mui/icons-material";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { InboxOutlined, Search } from "@mui/icons-material";
+import {
+	Box,
+	Button,
+	InputAdornment,
+	Paper,
+	Stack,
+	TextField,
+	Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useDownloadExpensesCsv } from "../hooks/useDownloadExpensesCsv";
 import { downloadExpensesXlsx } from "../hooks/useDownloadExpensesXlsx";
@@ -55,6 +64,8 @@ const EmptyState = () => {
 
 export function RecentExpenses() {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [queryInput, setQueryInput] = useState("");
+	const [debouncedQuery, setDebouncedQuery] = useState("");
 
 	const statusFilter =
 		(searchParams.get("status") as "all" | "paid" | "pending") ?? "all";
@@ -66,8 +77,18 @@ export function RecentExpenses() {
 			return params;
 		});
 	};
-	const { data, isLoading, isError, refetch } =
-		useGetExpensesQuery(statusFilter);
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			setDebouncedQuery(queryInput.trim());
+		}, 400);
+
+		return () => clearTimeout(timeoutId);
+	}, [queryInput]);
+
+	const { data, isLoading, isError, refetch } = useGetExpensesQuery(
+		statusFilter,
+		debouncedQuery,
+	);
 	const hasData = !!data?.length;
 	const total = data ? data.length : 0;
 	return (
@@ -82,6 +103,23 @@ export function RecentExpenses() {
 			<RecentExpensesFilter
 				value={statusFilter}
 				onChange={handleStatusChange}
+			/>
+			<TextField
+				fullWidth
+				label="Buscar despesas"
+				placeholder="Digite para filtrar por descrição, categoria ou fonte"
+				value={queryInput}
+				onChange={(e) => setQueryInput(e.target.value)}
+				slotProps={{
+					input: {
+						startAdornment: (
+							<InputAdornment position="start">
+								<Search fontSize="small" />
+							</InputAdornment>
+						),
+					},
+				}}
+				sx={{ mt: 2 }}
 			/>
 			<Box mb={3} />
 			{/* Loading State */}

@@ -19,16 +19,28 @@ export type GetExpenseResponse = Expense[];
 
 export const getExpenses = async (
 	status: "all" | "paid" | "pending",
+	query?: string,
 ): Promise<GetExpenseResponse> => {
+	const params: { status: "all" | "paid" | "pending"; query?: string } = {
+		status,
+	};
+
+	if (query?.trim()) {
+		params.query = query.trim();
+	}
+
 	const response = await instance.get("/dashboard/expenses", {
-		params: { status },
+		params,
 	});
 	return response.data;
 };
 
-export const useGetExpensesQuery = (status: "all" | "paid" | "pending") => {
+export const useGetExpensesQuery = (
+	status: "all" | "paid" | "pending",
+	query?: string,
+) => {
 	return useQuery({
-		queryKey: ["dashboard-expenses", status],
-		queryFn: () => getExpenses(status),
+		queryKey: ["dashboard-expenses", status, query?.trim() || ""],
+		queryFn: () => getExpenses(status, query),
 	});
 };

@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
+import { UsageTipsWidget } from "./UsageTipsWidget";
 
 type MainLayoutProps = {
 	children: React.ReactNode;
@@ -23,6 +24,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 			</Box>
 
 			<Footer />
+			<UsageTipsWidget />
 		</Box>
 	);
 }

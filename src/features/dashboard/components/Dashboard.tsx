@@ -35,9 +35,11 @@ export function Dashboard() {
 			label: "Categorias",
 			icon: <CategoryIcon />,
 			component: (
-				<CategoryModalContextProvider>
-					<CategoriesArea />
-				</CategoryModalContextProvider>
+				<ExpenseModalContextProvider>
+					<CategoryModalContextProvider>
+						<CategoriesArea />
+					</CategoryModalContextProvider>
+				</ExpenseModalContextProvider>
 			),
 		},
 		{

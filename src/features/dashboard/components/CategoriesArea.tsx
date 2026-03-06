@@ -7,43 +7,131 @@ import {
 	Card,
 	CardContent,
 	Chip,
+	FormControl,
+	InputLabel,
+	MenuItem,
+	Select,
 	Typography,
 } from "@mui/material";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { useCategoryModalContext } from "../context/CategoryModalContextProvider";
-import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
+import {
+	type Category,
+	useGetCategoryListQuery,
+} from "../hooks/useGetCategoryListQuery";
+import { CategoryExpensesModal } from "./CategoryExpensesModal";
+
+const MONTHS = [
+	{ value: 1, label: "Janeiro" },
+	{ value: 2, label: "Fevereiro" },
+	{ value: 3, label: "Março" },
+	{ value: 4, label: "Abril" },
+	{ value: 5, label: "Maio" },
+	{ value: 6, label: "Junho" },
+	{ value: 7, label: "Julho" },
+	{ value: 8, label: "Agosto" },
+	{ value: 9, label: "Setembro" },
+	{ value: 10, label: "Outubro" },
+	{ value: 11, label: "Novembro" },
+	{ value: 12, label: "Dezembro" },
+];
 
 export function CategoriesArea() {
 	const { selectAction } = useCategoryModalContext();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+		null,
+	);
 
-	const { data } = useGetCategoryListQuery();
+	const monthFromQuery = searchParams.get("category_month");
+	const parsedMonth = monthFromQuery ? Number(monthFromQuery) : undefined;
+	const selectedMonth =
+		parsedMonth && parsedMonth >= 1 && parsedMonth <= 12
+			? parsedMonth
+			: undefined;
+
+	const { data } = useGetCategoryListQuery(selectedMonth);
 
 	const categories = data ?? [];
+
+	const handleMonthChange = (month: number | "") => {
+		setSearchParams((prev) => {
+			const params = new URLSearchParams(prev);
+
+			if (month === "") {
+				params.delete("category_month");
+				return params;
+			}
+
+			params.set("category_month", String(month));
+			return params;
+		});
+	};
+
+	const handleOpenCategoryDetails = (category: Category) => {
+		setSelectedCategory(category);
+	};
+
+	const handleCloseCategoryDetails = () => {
+		setSelectedCategory(null);
+	};
+
 	return (
 		<Box>
 			<Box
 				sx={{
 					display: "flex",
 					justifyContent: "space-between",
-					alignItems: "center",
+					alignItems: { xs: "stretch", sm: "center" },
+					flexDirection: { xs: "column", sm: "row" },
 					mb: 3,
+					gap: 2,
 				}}
 			>
 				<Typography variant="h5" sx={{ fontWeight: 600 }}>
 					Gerenciar Categorias
 				</Typography>
-				<Button
-					variant="contained"
-					startIcon={<AddIcon />}
-					onClick={() => selectAction("create")}
-					sx={{
-						textTransform: "none",
-						borderRadius: 2,
-						px: 3,
-					}}
+				<Box
+					sx={{ display: "flex", gap: 2, width: { xs: "100%", sm: "auto" } }}
 				>
-					Nova categoria
-				</Button>
+					<FormControl size="small" sx={{ minWidth: 180 }}>
+						<InputLabel id="category-month-filter-label">
+							Filtrar por mês
+						</InputLabel>
+						<Select
+							labelId="category-month-filter-label"
+							label="Filtrar por mês"
+							value={selectedMonth ?? ""}
+							onChange={(event) =>
+								handleMonthChange(
+									event.target.value === "" ? "" : Number(event.target.value),
+								)
+							}
+						>
+							<MenuItem value="">Todos os meses</MenuItem>
+							{MONTHS.map((month) => (
+								<MenuItem key={month.value} value={month.value}>
+									{month.label}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+
+					<Button
+						variant="contained"
+						startIcon={<AddIcon />}
+						onClick={() => selectAction("create")}
+						sx={{
+							textTransform: "none",
+							borderRadius: 2,
+							px: 3,
+						}}
+					>
+						Nova categoria
+					</Button>
+				</Box>
 			</Box>
 
 			<Box
@@ -61,10 +149,12 @@ export function CategoriesArea() {
 					<Card
 						key={category.id}
 						elevation={0}
+						onClick={() => handleOpenCategoryDetails(category)}
 						sx={{
 							border: 1,
 							borderColor: "divider",
 							transition: "all 0.2s",
+							cursor: "pointer",
 							"&:hover": {
 								borderColor: category.color,
 								boxShadow: `0 4px 12px ${category.color}20`,
@@ -140,6 +230,12 @@ export function CategoriesArea() {
 					</Card>
 				))}
 			</Box>
+			<CategoryExpensesModal
+				open={!!selectedCategory}
+				onClose={handleCloseCategoryDetails}
+				category={selectedCategory}
+				month={selectedMonth}
+			/>
 		</Box>
 	);
 }

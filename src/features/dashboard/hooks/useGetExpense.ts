@@ -20,13 +20,28 @@ export type GetExpenseResponse = Expense[];
 export const getExpenses = async (
 	status: "all" | "paid" | "pending",
 	query?: string,
+	categoryId?: number,
+	month?: number,
 ): Promise<GetExpenseResponse> => {
-	const params: { status: "all" | "paid" | "pending"; query?: string } = {
+	const params: {
+		status: "all" | "paid" | "pending";
+		query?: string;
+		category_id?: number;
+		month?: number;
+	} = {
 		status,
 	};
 
 	if (query?.trim()) {
 		params.query = query.trim();
+	}
+
+	if (categoryId) {
+		params.category_id = categoryId;
+	}
+
+	if (month) {
+		params.month = month;
 	}
 
 	const response = await instance.get("/dashboard/expenses", {
@@ -38,9 +53,17 @@ export const getExpenses = async (
 export const useGetExpensesQuery = (
 	status: "all" | "paid" | "pending",
 	query?: string,
+	categoryId?: number,
+	month?: number,
 ) => {
 	return useQuery({
-		queryKey: ["dashboard-expenses", status, query?.trim() || ""],
-		queryFn: () => getExpenses(status, query),
+		queryKey: [
+			"dashboard-expenses",
+			status,
+			query?.trim() || "",
+			categoryId ?? "all-categories",
+			month ?? "all-months",
+		],
+		queryFn: () => getExpenses(status, query, categoryId, month),
 	});
 };

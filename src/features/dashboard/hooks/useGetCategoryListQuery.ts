@@ -11,14 +11,18 @@ export type Category = {
 
 export type GetCategoryListResponse = Category[];
 
-export const getCategoryList = async (): Promise<GetCategoryListResponse> => {
-	const response = await instance.get("/categories");
+export const getCategoryList = async (
+	month?: number,
+): Promise<GetCategoryListResponse> => {
+	const response = await instance.get("/categories", {
+		params: month ? { month } : undefined,
+	});
 	return response.data;
 };
 
-export const useGetCategoryListQuery = () => {
+export const useGetCategoryListQuery = (month?: number) => {
 	return useQuery({
-		queryKey: ["dashboard-categories"],
-		queryFn: getCategoryList,
+		queryKey: ["dashboard-categories", month ?? "all"],
+		queryFn: () => getCategoryList(month),
 	});
 };

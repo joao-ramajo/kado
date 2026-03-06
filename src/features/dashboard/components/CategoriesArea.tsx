@@ -1,6 +1,7 @@
 // CategoriesArea.tsx
 import AddIcon from "@mui/icons-material/Add";
 import CategoryIcon from "@mui/icons-material/Category";
+import EditIcon from "@mui/icons-material/Edit";
 import {
 	Box,
 	Button,
@@ -8,12 +9,13 @@ import {
 	CardContent,
 	Chip,
 	FormControl,
+	IconButton,
 	InputLabel,
 	MenuItem,
 	Select,
 	Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { useCategoryModalContext } from "../context/CategoryModalContextProvider";
@@ -72,6 +74,14 @@ export function CategoriesArea() {
 
 	const handleOpenCategoryDetails = (category: Category) => {
 		setSelectedCategory(category);
+	};
+
+	const handleEditCategory = (
+		event: MouseEvent<HTMLButtonElement>,
+		category: Category,
+	) => {
+		event.stopPropagation();
+		selectAction("edit", category);
 	};
 
 	const handleCloseCategoryDetails = () => {
@@ -183,12 +193,13 @@ export function CategoriesArea() {
 									<CategoryIcon sx={{ color: category.color, fontSize: 20 }} />
 								</Box>
 								<Box sx={{ display: "flex", gap: 0.5 }}>
-									{/* <IconButton size="small" sx={{ color: "text.secondary" }}>
+									<IconButton
+										size="small"
+										sx={{ color: "text.secondary" }}
+										onClick={(event) => handleEditCategory(event, category)}
+									>
 										<EditIcon fontSize="small" />
 									</IconButton>
-									<IconButton size="small" sx={{ color: "error.main" }}>
-										<DeleteIcon fontSize="small" />
-									</IconButton> */}
 								</Box>
 							</Box>
 							<Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>

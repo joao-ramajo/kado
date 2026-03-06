@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import { CreateCategoryModal } from "../components/CreateCategoryModal";
+import { EditCategoryModal } from "../components/EditCategoryModal";
 import type { Category } from "../hooks/useGetCategoryListQuery";
 
 type ActionType = "create" | "edit" | null;
@@ -30,7 +31,7 @@ const CategoryModalContextProvider = ({
 	children,
 }: CategoryModalContextProviderProps) => {
 	const [type, setType] = useState<ActionType>(null);
-	const [_item, setItem] = useState<Category | undefined>(undefined);
+	const [item, setItem] = useState<Category | undefined>(undefined);
 
 	const selectAction = useCallback(
 		(actionType: ActionType, Item?: Category) => {
@@ -48,6 +49,11 @@ const CategoryModalContextProvider = ({
 	return (
 		<ActionContext.Provider value={{ selectAction, clearAction }}>
 			<CreateCategoryModal open={type === "create"} onClose={clearAction} />
+			<EditCategoryModal
+				open={type === "edit"}
+				onClose={clearAction}
+				category={item}
+			/>
 			{children}
 		</ActionContext.Provider>
 	);

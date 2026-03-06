@@ -4,17 +4,21 @@ import { useExpenseModalContext } from "../context/ExpenseModalContextProvider";
 type RecentExpensesActionsProps = {
 	hasData: boolean;
 	isLoading: boolean;
+	isImporting: boolean;
 	total: number;
 	downloadExpensesCsv: () => void;
 	downloadExpensesXlsx: () => void;
+	importExpensesCsv: () => void;
 };
 
 export const RecentExpensesActions = ({
 	hasData,
 	isLoading,
+	isImporting,
 	total,
 	downloadExpensesCsv,
 	downloadExpensesXlsx,
+	importExpensesCsv,
 }: RecentExpensesActionsProps) => {
 	const { selectAction } = useExpenseModalContext();
 	return (
@@ -76,7 +80,21 @@ export const RecentExpensesActions = ({
 						flex: { xs: 1, sm: "0 1 auto" },
 						minWidth: { xs: "auto", sm: 120 },
 					}}
-					disabled={isLoading}
+					disabled={isLoading || isImporting}
+					onClick={importExpensesCsv}
+				>
+					{isImporting ? "Importando..." : "Importar Backup"}
+				</Button>
+				<Button
+					variant="outlined"
+					size="medium"
+					sx={{
+						textTransform: "none",
+						fontWeight: 600,
+						flex: { xs: 1, sm: "0 1 auto" },
+						minWidth: { xs: "auto", sm: 120 },
+					}}
+					disabled={isLoading || isImporting}
 					onClick={downloadExpensesXlsx}
 				>
 					Exportar Excel
@@ -90,7 +108,7 @@ export const RecentExpensesActions = ({
 						width: { xs: "100%", sm: "auto" },
 						minWidth: { sm: 140 },
 					}}
-					disabled={isLoading}
+					disabled={isLoading || isImporting}
 					onClick={() => selectAction("create")}
 				>
 					Nova despesa

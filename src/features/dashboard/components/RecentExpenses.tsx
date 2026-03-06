@@ -8,8 +8,10 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
+import { instance } from "../../../api/instance";
 import { useDownloadExpensesCsv } from "../hooks/useDownloadExpensesCsv";
 import { downloadExpensesXlsx } from "../hooks/useDownloadExpensesXlsx";
 import { type Expense, useGetExpensesQuery } from "../hooks/useGetExpense";
@@ -66,6 +68,8 @@ export function RecentExpenses() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [queryInput, setQueryInput] = useState("");
 	const [debouncedQuery, setDebouncedQuery] = useState("");
+	const [isImporting, setIsImporting] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	const statusFilter =
 		(searchParams.get("status") as "all" | "paid" | "pending") ?? "all";
@@ -91,14 +95,50 @@ export function RecentExpenses() {
 	);
 	const hasData = !!data?.length;
 	const total = data ? data.length : 0;
+
+	const importExpensesCsv = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append("file", file);
+
+		try {
+			setIsImporting(true);
+			await instance.post("/dashboard/spreadsheet/csv/import", formData, {
+				headers: { "Content-Type": "multipart/form-data" },
+			});
+			toast.success("Backup importado com sucesso");
+			await refetch();
+		} catch (_error) {
+			toast.error("Erro ao importar backup");
+		} finally {
+			setIsImporting(false);
+			event.target.value = "";
+		}
+	};
+
 	return (
 		<>
+			<input
+				ref={fileInputRef}
+				type="file"
+				accept=".csv"
+				onChange={handleFileChange}
+				style={{ display: "none" }}
+			/>
 			<RecentExpensesActions
 				hasData={hasData}
 				isLoading={isLoading}
+				isImporting={isImporting}
 				total={total ?? 0}
 				downloadExpensesCsv={useDownloadExpensesCsv}
 				downloadExpensesXlsx={downloadExpensesXlsx}
+				importExpensesCsv={importExpensesCsv}
 			/>
 			<RecentExpensesFilter
 				value={statusFilter}

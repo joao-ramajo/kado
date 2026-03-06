@@ -466,6 +466,29 @@ export function Header() {
 						{isAuthenticated && (
 							<>
 								<Divider sx={{ my: 1 }} />
+								<ListItem disablePadding>
+									<ListItemButton
+										onClick={() => handleNavigation("/ajustes")}
+										sx={{
+											py: 1.5,
+											px: 2.5,
+											"&:hover": {
+												bgcolor: "action.hover",
+											},
+										}}
+									>
+										<ListItemIcon>
+											<SettingsIcon />
+										</ListItemIcon>
+										<ListItemText
+											primary="Ajustes"
+											primaryTypographyProps={{
+												fontWeight: 500,
+												fontSize: "1rem",
+											}}
+										/>
+									</ListItemButton>
+								</ListItem>
 								<ListItem sx={{ px: 2.5, py: 1 }}>
 									<Typography variant="body2" color="text.secondary">
 										Conta conectada: {user?.name}

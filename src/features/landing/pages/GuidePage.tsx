@@ -210,7 +210,7 @@ export function GuidePage() {
 											variant="caption"
 											sx={{ color: "#9CA3AF", mt: 0.75, display: "block" }}
 										>
-											{ block.imageAlt }
+											{block.imageAlt}
 										</Typography>
 									</Box>
 								</Box>

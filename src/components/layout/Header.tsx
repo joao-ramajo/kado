@@ -1,6 +1,5 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CloseIcon from "@mui/icons-material/Close";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -27,7 +26,6 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { DeleteAccountDialog } from "../DeleteAccountDialog";
 
 type ItemMenu = {
 	label: string;
@@ -52,7 +50,6 @@ export function Header() {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const { user, isAuthenticated, logout } = useAuth();
 
 	const userMenuOpen = Boolean(anchorEl);
@@ -61,7 +58,6 @@ export function Header() {
 		{ label: "Home", to: "/", public: true },
 		{ label: "Apoie", to: "/apoie", public: true },
 		{ label: "Guia de Uso", to: "/guia-de-uso", public: true },
-		{ label: "Dashboard", to: "/dashboard", public: false },
 	];
 
 	const visibleMenuItems = menuItems.filter(
@@ -84,11 +80,6 @@ export function Header() {
 	};
 
 	const handleUserMenuClose = () => {
-		setAnchorEl(null);
-	};
-
-	const handleDeleteAccount = () => {
-		setDeleteDialogOpen(true);
 		setAnchorEl(null);
 	};
 
@@ -346,6 +337,24 @@ export function Header() {
 				{/* <Divider sx={{ my: 1 }} /> */}
 
 				<MenuItem
+					onClick={() => navigate("/ajustes")}
+					sx={{
+						py: 1.25,
+						px: 2,
+						"&:hover": {
+							bgcolor: "action.hover",
+						},
+					}}
+				>
+					<ListItemIcon>
+						<SettingsIcon fontSize="small" />
+					</ListItemIcon>
+					<ListItemText>
+						<Typography variant="body2">Ajustes de popups</Typography>
+					</ListItemText>
+				</MenuItem>
+
+				<MenuItem
 					onClick={handleLogout}
 					sx={{
 						py: 1.25,
@@ -360,27 +369,6 @@ export function Header() {
 					</ListItemIcon>
 					<ListItemText>
 						<Typography variant="body2">Sair</Typography>
-					</ListItemText>
-				</MenuItem>
-
-				<Divider sx={{ my: 1 }} />
-
-				<MenuItem
-					onClick={handleDeleteAccount}
-					sx={{
-						py: 1.25,
-						px: 2,
-						color: "error.main",
-						"&:hover": {
-							bgcolor: "error.lighter",
-						},
-					}}
-				>
-					<ListItemIcon>
-						<DeleteForeverIcon fontSize="small" color="error" />
-					</ListItemIcon>
-					<ListItemText>
-						<Typography variant="body2">Excluir conta</Typography>
 					</ListItemText>
 				</MenuItem>
 			</Menu>
@@ -474,58 +462,14 @@ export function Header() {
 							</ListItem>
 						))}
 
-						{/* Opções de configuração no mobile */}
+						{/* Opções de sessão no mobile */}
 						{isAuthenticated && (
 							<>
 								<Divider sx={{ my: 1 }} />
-								<ListItem disablePadding>
-									<ListItemButton
-										sx={{
-											py: 1.5,
-											px: 2.5,
-											"&:hover": {
-												bgcolor: "action.hover",
-											},
-										}}
-									>
-										<ListItemIcon>
-											<SettingsIcon />
-										</ListItemIcon>
-										<ListItemText
-											primary="Configurações"
-											primaryTypographyProps={{
-												fontWeight: 500,
-												fontSize: "1rem",
-											}}
-										/>
-									</ListItemButton>
-								</ListItem>
-								<ListItem disablePadding>
-									<ListItemButton
-										onClick={() => {
-											setDeleteDialogOpen(true);
-											setOpen(false);
-										}}
-										sx={{
-											py: 1.5,
-											px: 2.5,
-											color: "error.main",
-											"&:hover": {
-												bgcolor: "error.lighter",
-											},
-										}}
-									>
-										<ListItemIcon>
-											<DeleteForeverIcon color="error" />
-										</ListItemIcon>
-										<ListItemText
-											primary="Excluir conta"
-											primaryTypographyProps={{
-												fontWeight: 500,
-												fontSize: "1rem",
-											}}
-										/>
-									</ListItemButton>
+								<ListItem sx={{ px: 2.5, py: 1 }}>
+									<Typography variant="body2" color="text.secondary">
+										Conta conectada: {user?.name}
+									</Typography>
 								</ListItem>
 							</>
 						)}
@@ -587,13 +531,6 @@ export function Header() {
 					</Box>
 				</Box>
 			</Drawer>
-
-			{/* Delete Account Dialog */}
-			<DeleteAccountDialog
-				open={deleteDialogOpen}
-				onClose={() => setDeleteDialogOpen(false)}
-				userName={user?.name || ""}
-			/>
 		</>
 	);
 }

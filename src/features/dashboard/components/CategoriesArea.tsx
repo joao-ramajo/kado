@@ -104,11 +104,10 @@ export function CategoriesArea() {
 							labelId="category-month-filter-label"
 							label="Filtrar por mês"
 							value={selectedMonth ?? ""}
-							onChange={(event) =>
-								handleMonthChange(
-									event.target.value === "" ? "" : Number(event.target.value),
-								)
-							}
+							onChange={(event) => {
+								const rawValue = String(event.target.value);
+								handleMonthChange(rawValue === "" ? "" : Number(rawValue));
+							}}
 						>
 							<MenuItem value="">Todos os meses</MenuItem>
 							{MONTHS.map((month) => (

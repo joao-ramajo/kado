@@ -72,6 +72,23 @@ const Icons = {
 			<line x1="12" y1="15" x2="12" y2="3" />
 		</svg>
 	),
+	upload: (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<title id="upload-title">Upload</title>
+			<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+			<polyline points="17 8 12 3 7 8" />
+			<line x1="12" y1="3" x2="12" y2="15" />
+		</svg>
+	),
 	checkCircle: (
 		<svg
 			width="20"
@@ -202,6 +219,7 @@ const Icons = {
 type Step = { id: number; icon: React.ReactNode; text: string };
 type Feature = {
 	id: string;
+	section: "account" | "transactions" | "organization" | "reports";
 	icon: React.ReactNode;
 	title: string;
 	color: string;
@@ -211,9 +229,33 @@ type Feature = {
 	tip?: string;
 };
 
+const featureSections = [
+	{
+		id: "account" as const,
+		title: "Conta e acesso",
+		description: "Login, isolamento de dados e início de uso",
+	},
+	{
+		id: "transactions" as const,
+		title: "Movimentações financeiras",
+		description: "Como registrar, editar e pagar despesas/entradas",
+	},
+	{
+		id: "organization" as const,
+		title: "Organização e filtros",
+		description: "Categorias, fontes e filtros para encontrar rápido",
+	},
+	{
+		id: "reports" as const,
+		title: "Relatórios e backup",
+		description: "Importação/exportação para segurança e análise",
+	},
+];
+
 const features: Feature[] = [
 	{
 		id: "conta",
+		section: "account",
 		icon: Icons.user,
 		title: "Conta & Isolamento",
 		color: "#6366f1",
@@ -237,6 +279,7 @@ const features: Feature[] = [
 	},
 	{
 		id: "despesas",
+		section: "transactions",
 		icon: Icons.receipt,
 		title: "Criação de Despesas",
 		color: "#3b82f6",
@@ -270,6 +313,7 @@ const features: Feature[] = [
 	},
 	{
 		id: "listagem",
+		section: "transactions",
 		icon: Icons.barChart,
 		title: "Listagem & Visibilidade",
 		color: "#8b5cf6",
@@ -301,6 +345,7 @@ const features: Feature[] = [
 	},
 	{
 		id: "editar",
+		section: "transactions",
 		icon: Icons.pencil,
 		title: "Edição & Ação Rápida",
 		color: "#f59e0b",
@@ -328,6 +373,7 @@ const features: Feature[] = [
 	},
 	{
 		id: "categorias",
+		section: "organization",
 		icon: Icons.tag,
 		title: "Categorias",
 		color: "#10b981",
@@ -346,11 +392,45 @@ const features: Feature[] = [
 				icon: Icons.checkCircle,
 				text: "Agrupe visualmente no dashboard",
 			},
+			{
+				id: 24,
+				icon: Icons.checkCircle,
+				text: "Abra os registros da categoria em modal com um clique",
+			},
+			{
+				id: 25,
+				icon: Icons.checkCircle,
+				text: "Filtre por mês para ver apenas o período desejado",
+			},
 		],
 		tip: "Categorias são opcionais. Se você não quer usar, não precisa. O Kado não força nada.",
 	},
 	{
+		id: "fontes",
+		section: "organization",
+		icon: Icons.user,
+		title: "Fontes de dinheiro",
+		color: "#14b8a6",
+		bgColor: "#f0fdfa",
+		summary:
+			"Separe seu dinheiro por fontes (carteira principal, viagem, reserva) para ter contexto real.",
+		steps: [
+			{ id: 26, icon: Icons.plus, text: "Crie fontes com nome e cor" },
+			{
+				id: 27,
+				icon: Icons.checkCircle,
+				text: "Associe entradas e despesas a cada fonte",
+			},
+			{
+				id: 28,
+				icon: Icons.checkCircle,
+				text: "Acompanhe saldo por fonte no painel dedicado",
+			},
+		],
+	},
+	{
 		id: "resumo",
+		section: "reports",
 		icon: Icons.barChart,
 		title: "Resumo Financeiro",
 		color: "#ef4444",
@@ -361,78 +441,156 @@ const features: Feature[] = [
 			{ id: 19, icon: Icons.checkCircle, text: "Total de receitas do período" },
 			{ id: 20, icon: Icons.checkCircle, text: "Total de despesas do período" },
 			{
-				id: 20,
+				id: 21,
 				icon: Icons.checkCircle,
 				text: "Saldo calculado automaticamente",
 			},
-			{ id: 21, icon: Icons.checkCircle, text: "Visão de pendentes vs pagas" },
+			{ id: 22, icon: Icons.checkCircle, text: "Visão de pendentes vs pagas" },
 		],
 		tip: "O resumo atualiza em tempo real conforme você registra ou marca despesas.",
 	},
 	{
 		id: "exportar",
+		section: "reports",
 		icon: Icons.download,
-		title: "Exportação CSV",
+		title: "Exportação CSV e XLSX",
 		color: "#64748b",
 		bgColor: "#f1f5f9",
 		summary:
-			"Baixe todos os seus dados em CSV. Para backup, Excel, Google Sheets ou qualquer uso externo.",
+			"Baixe todos os seus dados em CSV ou XLSX para backup, auditoria pessoal e análises externas.",
 		steps: [
 			{
-				id: 22,
+				id: 29,
 				icon: Icons.checkCircle,
-				text: 'Clique "Exportar" na lista de despesas',
+				text: 'Clique "Exportar Backup" para CSV completo',
 			},
 			{
-				id: 23,
+				id: 30,
+				icon: Icons.checkCircle,
+				text: 'Clique "Exportar Excel" para planilha XLSX formatada',
+			},
+			{
+				id: 31,
 				icon: Icons.download,
-				text: "Um arquivo CSV é gerado com todos os dados",
-			},
-			{
-				id: 4,
-				icon: Icons.checkCircle,
-				text: "Abra no Excel, Google Sheets ou qualquer editor",
+				text: "Baixe e abra no Excel, Google Sheets ou ferramenta de BI",
 			},
 		],
-		tip: "Seus dados são sempre seus. O Kado nunca te prende.",
+	},
+	{
+		id: "importar",
+		section: "reports",
+		icon: Icons.upload,
+		title: "Importação de backup (CSV)",
+		color: "#0ea5e9",
+		bgColor: "#e0f2fe",
+		summary:
+			"Restaure ou traga dados de planilhas CSV para dentro do Kado de forma rápida.",
+		steps: [
+			{
+				id: 32,
+				icon: Icons.plus,
+				text: 'Clique em "Importar Backup" na listagem de despesas',
+			},
+			{
+				id: 33,
+				icon: Icons.checkCircle,
+				text: "Selecione um arquivo CSV no formato esperado",
+			},
+			{
+				id: 34,
+				icon: Icons.bolt,
+				text: "O sistema importa e atualiza a listagem automaticamente",
+			},
+		],
+		tip: "Importação ideal para migração, recuperação de backup ou início rápido.",
 	},
 ];
 
 // ─── Fluxos ─────────────────────────────────────────────────────────────────
-type Flow = { title: string; tag: string; tagColor: string; steps: string[] };
+type Flow = {
+	title: string;
+	tag: string;
+	tagColor: string;
+	whenToUse: string;
+	expectedResult: string;
+	steps: string[];
+};
 
 const flows: Flow[] = [
 	{
-		title: "Usuário comum",
-		tag: "Básico",
+		title: "Primeira semana no Kado",
+		tag: "Onboarding",
 		tagColor: "#3b82f6",
+		whenToUse:
+			"Para quem acabou de criar conta e quer começar com o básico certo.",
+		expectedResult:
+			"Você termina a semana com seu fluxo de caixa inicial organizado e visível.",
 		steps: [
-			"Cria conta no Kado",
-			"Registra salário como receita",
-			"Registra aluguel e compras como despesas",
-			"Marca despesas como pagas conforme vai quitando",
-			"Acompanha resumo no dashboard",
+			"Crie sua conta e entre no dashboard",
+			"Cadastre sua principal receita do mês (salário/freela)",
+			"Registre as despesas fixas (aluguel, internet, energia)",
+			"Adicione 3 a 5 despesas variáveis recorrentes",
+			"Use o resumo para validar saldo esperado do mês",
 		],
 	},
 	{
-		title: "Controle mensal",
-		tag: "Organização",
+		title: "Rotina mensal de contas",
+		tag: "Mensal",
 		tagColor: "#10b981",
+		whenToUse:
+			"Para manter disciplina mensal e acompanhar o que já foi pago x pendente.",
+		expectedResult:
+			"Você reduz esquecimentos e tem clareza de quanto ainda falta pagar.",
 		steps: [
-			"No começo do mês, lança todas as contas como pendentes",
-			"Durante o mês, marca como pagas à medida que paga",
-			"No final do mês, exporta CSV como backup",
-			"Apaga despesas antigas se quiser recomeçar",
+			"No início do mês, lance as contas previstas como pendentes",
+			"Durante o mês, marque como pagas conforme quitar cada uma",
+			"Revise semanalmente a aba de despesas com filtro de status",
+			"No fechamento, exporte CSV/XLSX para histórico e backup",
 		],
 	},
 	{
-		title: "Usuário minimalista",
-		tag: "Simples",
+		title: "Acompanhamento por categoria",
+		tag: "Análise",
 		tagColor: "#8b5cf6",
+		whenToUse:
+			"Para entender para onde o dinheiro está indo e corrigir excessos.",
+		expectedResult:
+			"Você identifica categorias críticas e toma decisões mais rápidas no mês.",
 		steps: [
-			"Só lança despesas já pagas",
-			"Não usa categorias",
-			"Acompanha apenas quanto gastou e quanto entrou",
+			"Classifique as despesas nas categorias corretas",
+			"Na aba de categorias, filtre o mês desejado",
+			"Clique em uma categoria para abrir os lançamentos detalhados",
+			"Revise as maiores despesas e ajuste prioridades do próximo mês",
+		],
+	},
+	{
+		title: "Controle por fontes de dinheiro",
+		tag: "Multi-conta",
+		tagColor: "#0ea5e9",
+		whenToUse:
+			"Para separar orçamento pessoal, reserva, viagem ou projetos específicos.",
+		expectedResult:
+			"Você passa a enxergar saldos e movimentações por contexto, sem mistura.",
+		steps: [
+			"Crie fontes diferentes (ex: principal, viagem, emergência)",
+			"Associe cada lançamento à fonte correta ao criar/editar",
+			"Revise a aba de fontes para conferir saldo de cada contexto",
+			"Use isso para decidir de onde pagar novas despesas",
+		],
+	},
+	{
+		title: "Backup e restauração de dados",
+		tag: "Segurança",
+		tagColor: "#f59e0b",
+		whenToUse:
+			"Para preservar histórico e migrar dados entre ambientes sem perder controle.",
+		expectedResult:
+			"Seus dados ficam portáveis e você evita retrabalho em caso de troca/perda.",
+		steps: [
+			"Exporte backup CSV no fechamento do mês",
+			"Guarde em nuvem ou pasta de segurança",
+			"Quando necessário, use Importar Backup (CSV)",
+			"Valide resumo e categorias após importação",
 		],
 	},
 ];
@@ -647,6 +805,49 @@ function FlowCard({ flow, index }: { flow: Flow; index: number }) {
 			>
 				{flow.title}
 			</Typography>
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+					gap: 1.25,
+					mb: 2,
+				}}
+			>
+				<Box
+					sx={{
+						borderRadius: 2,
+						bgcolor: "action.hover",
+						p: 1.25,
+					}}
+				>
+					<Typography
+						variant="caption"
+						sx={{ fontWeight: 700, color: "text.primary", display: "block" }}
+					>
+						Quando usar
+					</Typography>
+					<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.3 }}>
+						{flow.whenToUse}
+					</Typography>
+				</Box>
+				<Box
+					sx={{
+						borderRadius: 2,
+						bgcolor: "action.hover",
+						p: 1.25,
+					}}
+				>
+					<Typography
+						variant="caption"
+						sx={{ fontWeight: 700, color: "text.primary", display: "block" }}
+					>
+						Resultado esperado
+					</Typography>
+					<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.3 }}>
+						{flow.expectedResult}
+					</Typography>
+				</Box>
+			</Box>
 
 			{/* Steps com linha conectora */}
 			<Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -715,6 +916,10 @@ export function ResourcesPage() {
 	const [activeSection, setActiveSection] = useState<"features" | "flows">(
 		"features",
 	);
+	const groupedFeatures = featureSections.map((section) => ({
+		...section,
+		items: features.filter((feature) => feature.section === section.id),
+	}));
 
 	return (
 		<Box
@@ -864,16 +1069,40 @@ export function ResourcesPage() {
 			>
 				{/* Funcionalidades */}
 				{activeSection === "features" && (
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-						{features.map((feature) => (
-							<FeatureCard
-								key={feature.id}
-								feature={feature}
-								expanded={expandedId === feature.id}
-								onToggle={() =>
-									setExpandedId(expandedId === feature.id ? null : feature.id)
-								}
-							/>
+					<Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+						{groupedFeatures.map((section) => (
+							<Box key={section.id}>
+								<Box sx={{ mb: 1.25 }}>
+									<Typography
+										variant="subtitle1"
+										sx={{ fontWeight: 700, color: "text.primary" }}
+									>
+										{section.title}
+									</Typography>
+									<Typography
+										variant="body2"
+										sx={{ color: "text.secondary", fontSize: "0.82rem" }}
+									>
+										{section.description}
+									</Typography>
+								</Box>
+								<Box
+									sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+								>
+									{section.items.map((feature) => (
+										<FeatureCard
+											key={feature.id}
+											feature={feature}
+											expanded={expandedId === feature.id}
+											onToggle={() =>
+												setExpandedId(
+													expandedId === feature.id ? null : feature.id,
+												)
+											}
+										/>
+									))}
+								</Box>
+							</Box>
 						))}
 					</Box>
 				)}

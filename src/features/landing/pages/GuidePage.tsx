@@ -1,88 +1,86 @@
+import { CheckCircle, Close, PlayArrow } from "@mui/icons-material";
 import {
-	CheckCircle,
-	Dashboard,
-	EditNote,
-	Lightbulb,
-	NotificationsActive,
-	PlayArrow,
-	ReceiptLong,
-	TipsAndUpdates,
-	TrendingDown,
-	TrendingUp,
-	Tune,
-} from "@mui/icons-material";
-import {
-	Avatar,
 	Box,
 	Card,
 	CardContent,
 	Chip,
-	Divider,
+	Dialog,
+	DialogContent,
+	IconButton,
 	Stack,
 	Typography,
 } from "@mui/material";
+import { useState } from "react";
 import { PageTemplate } from "../../../components/PageTemplate";
 
-const quickStartSteps = [
-	{
-		title: "Registre despesas",
-		description:
-			"Almoço, mercado, transporte e contas. Quanto mais próximo do gasto, mais fiel fica seu histórico.",
-		icon: <TrendingDown sx={{ color: "#DC2626" }} />,
-	},
-	{
-		title: "Registre receitas",
-		description:
-			"Salário, freelas e vendas. Toda entrada registrada melhora sua visão real do mês.",
-		icon: <TrendingUp sx={{ color: "#059669" }} />,
-	},
-	{
-		title: "Acompanhe no dashboard",
-		description:
-			"Veja totais, saldo final e status das despesas para tomar decisões melhores.",
-		icon: <Dashboard sx={{ color: "#0066FF" }} />,
-	},
-];
+type UsageBlock = {
+	id: string;
+	title: string;
+	subtitle: string;
+	steps: string[];
+	imageAlt: string;
+	imageUrl: string;
+};
 
-const weeklyRoutine = [
-	"Manhã: registre entradas previstas no dia.",
-	"Durante o dia: lance as despesas no momento em que acontecerem.",
-	"Fim do dia: revise pendências e marque pagamentos concluídos.",
-	"Fim do mês: compare gastos por categoria e ajuste prioridades.",
-];
-
-const usageTips = [
+const usageBlocks: UsageBlock[] = [
 	{
-		title: "Registre em menos de 30 segundos",
-		description:
-			"Preencha apenas descrição e valor primeiro. Categoria e fonte podem ser ajustadas depois sem perder agilidade.",
-		icon: <ReceiptLong sx={{ color: "#0066FF" }} />,
+		id: "start",
+		title: "Bloco 1: Começando em 5 minutos",
+		subtitle: "Configure o básico para ter visão real do seu mês.",
+		steps: [
+			"Registre sua principal receita do mês.",
+			"Adicione as despesas fixas (aluguel, internet, energia).",
+			"Classifique os lançamentos com categorias.",
+			"Revise o resumo para validar o saldo esperado.",
+		],
+		imageAlt: "Exemplo do dashboard inicial do Kado sem despesas registradas.",
+		imageUrl: "/assets/images/dashboard-limpo.png",
 	},
 	{
-		title: "Use filtros para fechar pendências",
-		description:
-			"Abra o filtro de status e revise despesas pendentes no fim do dia para manter o dashboard sempre confiável.",
-		icon: <Tune sx={{ color: "#B45309" }} />,
+		id: "daily",
+		title: "Bloco 2: Rotina diária simples",
+		subtitle: "Use o Kado em ciclos curtos para não acumular pendências.",
+		steps: [
+			"Abra o dashboard no início do dia e veja pendências.",
+			"Lance despesas no momento em que acontecerem.",
+			"Marque como paga assim que quitar.",
+			"Use filtro por status para fechar o dia sem pendências esquecidas.",
+		],
+		imageAlt: "Exemplo de listagem de despesas com filtros",
+		imageUrl: "/assets/images/dashboard-dados-iniciais.png",
 	},
 	{
-		title: "Crie um ritual semanal",
-		description:
-			"Reserve 10 minutos por semana para revisar categorias com maior gasto e ajustar seus próximos lançamentos.",
-		icon: <NotificationsActive sx={{ color: "#059669" }} />,
+		id: "monthly",
+		title: "Bloco 3: Fechamento mensal",
+		subtitle: "Feche o mês com histórico e backup organizados.",
+		steps: [
+			"Na aba de categorias, selecione o mês para analisar gastos.",
+			"Clique em uma categoria para abrir os lançamentos detalhados.",
+			"Revise fontes para ver saldo por contexto (principal, viagem etc.).",
+			"Exporte backup em CSV/XLSX para histórico e segurança.",
+		],
+		imageAlt: "Exemplo de visão por categoria no mês",
+		imageUrl: "/assets/images/visao-categoria.png",
 	},
 ];
 
 export function GuidePage() {
+	const [selectedImage, setSelectedImage] = useState<{
+		url: string;
+		alt: string;
+		title: string;
+	} | null>(null);
+
 	return (
 		<PageTemplate>
-			<Stack spacing={7}>
+			<Stack spacing={5}>
 				<Box textAlign="center">
 					<Chip
-						label="Guia prático"
+						label="Guia de uso"
 						size="small"
 						icon={<PlayArrow sx={{ fontSize: 16 }} />}
 						sx={{
-							mb: 3,
+							mb: 2,
 							bgcolor: "#E8F4FF",
 							color: "#0066FF",
 							fontWeight: 600,
@@ -92,268 +90,171 @@ export function GuidePage() {
 					<Typography
 						variant="h1"
 						sx={{
-							fontSize: { xs: "2.25rem", md: "3.25rem" },
+							fontSize: { xs: "2rem", md: "2.75rem" },
 							fontWeight: 800,
 							color: "#1F2937",
-							mb: 2,
-							lineHeight: 1.1,
+							mb: 1.5,
+							lineHeight: 1.15,
 						}}
 					>
-						Como usar o{" "}
-						<Box component="span" sx={{ color: "#0066FF" }}>
-							Kado
-						</Box>{" "}
-						no dia a dia
+						Guia rápido para usar o Kado
 					</Typography>
 					<Typography
 						sx={{
 							color: "#6B7280",
-							fontSize: { xs: "1rem", md: "1.15rem" },
-							maxWidth: 700,
+							fontSize: { xs: "0.98rem", md: "1.08rem" },
+							maxWidth: 760,
 							mx: "auto",
 							lineHeight: 1.7,
 						}}
 					>
-						Um fluxo simples para registrar movimentações, acompanhar resultados
-						e manter clareza sobre seu dinheiro sem complexidade.
+						Menos texto, mais prática: siga os blocos abaixo para aprender a
+						registrar, revisar e fechar seu mês com clareza.
 					</Typography>
 				</Box>
 
-				<Card
-					elevation={0}
-					sx={{
-						border: "2px solid #E8F4FF",
-						borderRadius: 3,
-						bgcolor: "#FCFDFF",
-					}}
-				>
-					<CardContent sx={{ p: { xs: 3, md: 5 } }}>
-						<Stack spacing={2}>
-							<Chip
-								icon={<Lightbulb />}
-								label="Por que usar?"
-								sx={{
-									width: "fit-content",
-									bgcolor: "#FFF7E6",
-									color: "#B45309",
-									fontWeight: 600,
-								}}
-							/>
-							<Typography
-								variant="h5"
-								fontWeight={700}
-								sx={{ color: "#1F2937" }}
-							>
-								O problema que o Kado resolve
-							</Typography>
-							<Typography sx={{ color: "#6B7280", lineHeight: 1.8 }}>
-								A maioria das pessoas não sabe exatamente para onde o dinheiro
-								está indo. O Kado transforma gastos invisíveis em informação
-								clara para apoiar decisões melhores todos os meses.
-							</Typography>
-						</Stack>
-					</CardContent>
-				</Card>
+				<Stack spacing={3}>
+					{usageBlocks.map((block) => (
+						<Card
+							key={block.id}
+							elevation={0}
+							sx={{
+								border: "2px solid #E8F4FF",
+								borderRadius: 3,
+								overflow: "hidden",
+							}}
+						>
+							<CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
+								<Box
+									sx={{
+										display: "grid",
+										gridTemplateColumns: { xs: "1fr", md: "1.1fr 1fr" },
+										gap: { xs: 2.5, md: 3 },
+										alignItems: "start",
+									}}
+								>
+									<Box>
+										<Typography
+											variant="h5"
+											sx={{ fontWeight: 800, color: "#1F2937", mb: 0.5 }}
+										>
+											{block.title}
+										</Typography>
+										<Typography
+											sx={{ color: "#6B7280", mb: 2, lineHeight: 1.7 }}
+										>
+											{block.subtitle}
+										</Typography>
 
-				<Box>
-					<Typography
-						variant="h4"
-						sx={{ fontWeight: 800, color: "#1F2937", mb: 3, fontSize: "2rem" }}
-					>
-						Fluxo de uso recomendado
-					</Typography>
-					<Box
-						sx={{
-							display: "grid",
-							gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-							gap: 2.5,
-						}}
-					>
-						{quickStartSteps.map((step) => (
-							<Card
-								key={step.title}
-								elevation={0}
-								sx={{
-									border: "2px solid #E8F4FF",
-									borderRadius: 2.5,
-									transition: "all 0.2s ease",
-									"&:hover": {
-										borderColor: "#0066FF",
-										transform: "translateY(-2px)",
-									},
-								}}
-							>
-								<CardContent sx={{ p: 3 }}>
-									<Stack spacing={2}>
-										<Avatar
+										<Stack spacing={1.25}>
+											{block.steps.map((step) => (
+												<Box
+													key={step}
+													display="flex"
+													alignItems="start"
+													gap={1}
+												>
+													<CheckCircle
+														sx={{
+															fontSize: 19,
+															color: "#059669",
+															mt: 0.25,
+															flexShrink: 0,
+														}}
+													/>
+													<Typography
+														sx={{ color: "#374151", lineHeight: 1.6 }}
+													>
+														{step}
+													</Typography>
+												</Box>
+											))}
+										</Stack>
+									</Box>
+
+									<Box>
+										<Typography
+											variant="caption"
 											sx={{
-												bgcolor: "#F3F8FF",
-												color: "#0066FF",
-												width: 42,
-												height: 42,
+												color: "#6B7280",
+												fontWeight: 700,
+												letterSpacing: "0.03em",
+												mb: 1,
+												display: "block",
 											}}
 										>
-											{step.icon}
-										</Avatar>
-										<Typography fontWeight={700} sx={{ color: "#1F2937" }}>
-											{step.title}
+											EXEMPLO VISUAL
 										</Typography>
-										<Typography sx={{ color: "#6B7280", lineHeight: 1.7 }}>
-											{step.description}
-										</Typography>
-									</Stack>
-								</CardContent>
-							</Card>
-						))}
-					</Box>
-				</Box>
-
-				<Card
-					elevation={0}
-					sx={{
-						border: "2px solid #E8F4FF",
-						borderRadius: 3,
-						overflow: "hidden",
-					}}
-				>
-					<CardContent sx={{ p: { xs: 3, md: 5 } }}>
-						<Stack spacing={3}>
-							<Box display="flex" alignItems="center" gap={1.5}>
-								<TipsAndUpdates sx={{ color: "#0066FF" }} />
-								<Typography
-									variant="h5"
-									fontWeight={700}
-									sx={{ color: "#1F2937" }}
-								>
-									Rotina ideal de uso
-								</Typography>
-							</Box>
-							<Stack spacing={1.5}>
-								{weeklyRoutine.map((item) => (
-									<Box key={item} display="flex" alignItems="center" gap={1.5}>
-										<CheckCircle sx={{ color: "#059669", fontSize: 20 }} />
-										<Typography sx={{ color: "#374151", lineHeight: 1.8 }}>
-											{item}
+										<Box
+											component="img"
+											src={block.imageUrl}
+											alt={block.imageAlt}
+											onClick={() =>
+												setSelectedImage({
+													url: block.imageUrl,
+													alt: block.imageAlt,
+													title: block.title,
+												})
+											}
+											sx={{
+												width: "100%",
+												height: { xs: 180, md: 220 },
+												objectFit: "cover",
+												borderRadius: 2,
+												border: "1px solid #DCEBFF",
+												bgcolor: "#F8FBFF",
+												cursor: "zoom-in",
+											}}
+										/>
+										<Typography
+											variant="caption"
+											sx={{ color: "#9CA3AF", mt: 0.75, display: "block" }}
+										>
+											{ block.imageAlt }
 										</Typography>
 									</Box>
-								))}
-							</Stack>
-						</Stack>
-					</CardContent>
-				</Card>
-
-				<Box>
-					<Typography
-						variant="h5"
-						sx={{ fontWeight: 800, color: "#1F2937", mb: 2.5 }}
-					>
-						Widgets de dicas rápidas
-					</Typography>
-					<Box
-						sx={{
-							display: "grid",
-							gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-							gap: 2,
-						}}
-					>
-						{usageTips.map((tip) => (
-							<Card
-								key={tip.title}
-								elevation={0}
-								sx={{
-									border: "1px solid #DCEBFF",
-									borderRadius: 2.5,
-									bgcolor: "#F8FBFF",
-								}}
-							>
-								<CardContent sx={{ p: 2.75 }}>
-									<Stack spacing={1.25}>
-										<Box display="flex" alignItems="center" gap={1}>
-											{tip.icon}
-											<Typography fontWeight={700} sx={{ color: "#1F2937" }}>
-												{tip.title}
-											</Typography>
-										</Box>
-										<Typography sx={{ color: "#6B7280", lineHeight: 1.7 }}>
-											{tip.description}
-										</Typography>
-									</Stack>
-								</CardContent>
-							</Card>
-						))}
-					</Box>
-				</Box>
-
-				<Box
-					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", md: "1.1fr 1fr" },
-						gap: 2.5,
-					}}
-				>
-					<Card
-						elevation={0}
-						sx={{ border: "2px solid #E8F4FF", borderRadius: 3 }}
-					>
-						<CardContent sx={{ p: 3.5 }}>
-							<Stack spacing={2}>
-								<Box display="flex" alignItems="center" gap={1.5}>
-									<EditNote sx={{ color: "#0066FF" }} />
-									<Typography fontWeight={700} sx={{ color: "#1F2937" }}>
-										Boas práticas
-									</Typography>
 								</Box>
-								<Typography sx={{ color: "#6B7280", lineHeight: 1.8 }}>
-									Registre no momento do gasto, mantenha categorias consistentes
-									e revise pendências semanalmente. Esses hábitos aumentam a
-									qualidade dos dados e a precisão da análise.
-								</Typography>
-							</Stack>
-						</CardContent>
-					</Card>
-
-					<Card
-						elevation={0}
-						sx={{ border: "2px solid #E8F4FF", borderRadius: 3 }}
-					>
-						<CardContent sx={{ p: 3.5 }}>
-							<Stack spacing={2}>
-								<Typography fontWeight={700} sx={{ color: "#1F2937" }}>
-									O que o Kado não é
-								</Typography>
-								<Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-									<Chip label="Não é contabilidade" />
-									<Chip label="Não é app de investimentos" />
-									<Chip label="Não é sistema fiscal" />
-								</Stack>
-								<Typography sx={{ color: "#6B7280", lineHeight: 1.8 }}>
-									O Kado é um espelho simples e objetivo da sua vida financeira
-									real.
-								</Typography>
-							</Stack>
-						</CardContent>
-					</Card>
-				</Box>
-
-				<Divider />
-
-				<Card
-					elevation={0}
-					sx={{
-						background: "linear-gradient(135deg, #0066FF 0%, #0052CC 100%)",
-						borderRadius: 3,
-						color: "#FFFFFF",
-					}}
-				>
-					<CardContent sx={{ p: { xs: 3.5, md: 5 }, textAlign: "center" }}>
-						<CheckCircle sx={{ color: "#BBF7D0", mb: 1 }} />
-						<Typography sx={{ fontStyle: "italic", maxWidth: 620, mx: "auto" }}>
-							"Você não precisa ganhar mais dinheiro. Precisa entender melhor o
-							que já ganha."
-						</Typography>
-					</CardContent>
-				</Card>
+							</CardContent>
+						</Card>
+					))}
+				</Stack>
 			</Stack>
+
+			<Dialog
+				open={!!selectedImage}
+				onClose={() => setSelectedImage(null)}
+				fullWidth
+				maxWidth="lg"
+			>
+				<DialogContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+					<Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+						<Typography sx={{ fontWeight: 700, color: "#1F2937" }}>
+							{selectedImage?.title}
+						</Typography>
+						<IconButton
+							size="small"
+							onClick={() => setSelectedImage(null)}
+							aria-label="Fechar imagem"
+						>
+							<Close />
+						</IconButton>
+					</Box>
+					<Box
+						component="img"
+						src={selectedImage?.url}
+						alt={selectedImage?.alt}
+						sx={{
+							width: "100%",
+							height: "auto",
+							maxHeight: "75vh",
+							objectFit: "contain",
+							borderRadius: 1.5,
+							border: "1px solid #DCEBFF",
+							bgcolor: "#F8FBFF",
+						}}
+					/>
+				</DialogContent>
+			</Dialog>
 		</PageTemplate>
 	);
 }

@@ -23,8 +23,12 @@ import {
 	Typography,
 } from "@mui/material";
 import type { TransitionProps } from "@mui/material/transitions";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
+import dayjs, { type Dayjs } from "dayjs";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -54,26 +58,25 @@ const Transition = React.forwardRef(function Transition(
 	return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const getCurrentDateDisplay = () => {
+const getCurrentDateIso = () => {
 	const now = new Date();
 	const day = String(now.getDate()).padStart(2, "0");
 	const month = String(now.getMonth() + 1).padStart(2, "0");
 	const year = now.getFullYear();
-	return `${day}-${month}-${year}`;
-};
-
-const formatDisplayDateInput = (value: string) => {
-	const numeric = value.replace(/\D/g, "").slice(0, 8);
-	if (numeric.length <= 2) return numeric;
-	if (numeric.length <= 4) return `${numeric.slice(0, 2)}-${numeric.slice(2)}`;
-	return `${numeric.slice(0, 2)}-${numeric.slice(2, 4)}-${numeric.slice(4)}`;
+	return `${year}-${month}-${day}`;
 };
 
 const toBackendDate = (value: string | null | undefined) => {
 	if (!value) return null;
+
+	if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+		return value;
+	}
+
 	const match = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
 	if (!match) return null;
 	const [, day, month, year] = match;
+
 	return `${year}-${month}-${day}`;
 };
 
@@ -137,7 +140,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 		}
 
 		if (!paymentDate) {
-			setValue("payment_date", getCurrentDateDisplay());
+			setValue("payment_date", getCurrentDateIso());
 		}
 	}, [status, paymentDate, setValue]);
 
@@ -194,8 +197,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 			dashboard-summary
 			TransitionComponent={Transition}
 		>
-			{/* <form onSubmit={handleSubmit(onSubmit)}> */}
-			<form onSubmit={handleSubmit(onSubmit, (e) => console.log(e))}>
+			<form onSubmit={handleSubmit(onSubmit)}>
 				<DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
 					<Typography fontWeight={700}>Nova movimentação</Typography>
 					<IconButton onClick={handleClose}>
@@ -273,29 +275,30 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 					</ToggleButtonGroup>
 
 					{status === "paid" && (
-						<TextField
-							label="Data de pagamento"
-							fullWidth
-							value={paymentDate ?? ""}
-							onChange={(e) =>
-								setValue(
-									"payment_date",
-									formatDisplayDateInput(e.target.value),
-									{
-										shouldValidate: true,
+						<LocalizationProvider dateAdapter={AdapterDayjs}>
+							<DatePicker
+								label="Data de pagamento"
+								format="DD/MM/YYYY"
+								value={paymentDate ? dayjs(paymentDate) : null}
+								onChange={(value: Dayjs | null) => {
+									setValue(
+										"payment_date",
+										value ? value.format("YYYY-MM-DD") : null,
+										{
+											shouldValidate: true,
+										},
+									);
+								}}
+								slotProps={{
+									textField: {
+										fullWidth: true,
+										error: !!errors.payment_date,
+										helperText: errors.payment_date?.message,
 									},
-								)
-							}
-							placeholder="dd-mm-aaaa"
-							slotProps={{
-								htmlInput: {
-									inputMode: "numeric",
-									maxLength: 10,
-								},
-							}}
-							error={!!errors.payment_date}
-							helperText={errors.payment_date?.message}
-						/>
+								}}
+								disableFuture
+							/>
+						</LocalizationProvider>
 					)}
 
 					<Controller

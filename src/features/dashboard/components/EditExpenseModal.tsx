@@ -23,8 +23,12 @@ import {
 	Typography,
 } from "@mui/material";
 import type { TransitionProps } from "@mui/material/transitions";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
+import dayjs, { type Dayjs } from "dayjs";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -60,22 +64,20 @@ const formatBackendDateToDisplay = (dateString: string | null) => {
 	if (!dateString) return null;
 	const match = dateString.match(/\d{4}-\d{2}-\d{2}/);
 	if (!match) return null;
-	const [year, month, day] = match[0].split("-");
-	return `${day}-${month}-${year}`;
-};
-
-const formatDisplayDateInput = (value: string) => {
-	const numeric = value.replace(/\D/g, "").slice(0, 8);
-	if (numeric.length <= 2) return numeric;
-	if (numeric.length <= 4) return `${numeric.slice(0, 2)}-${numeric.slice(2)}`;
-	return `${numeric.slice(0, 2)}-${numeric.slice(2, 4)}-${numeric.slice(4)}`;
+	return match[0];
 };
 
 const toBackendDate = (value: string | null | undefined) => {
 	if (!value) return null;
+
+	if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+		return value;
+	}
+
 	const match = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
 	if (!match) return null;
 	const [, day, month, year] = match;
+
 	return `${year}-${month}-${day}`;
 };
 
@@ -275,25 +277,32 @@ export function EditExpenseModal({
 						</ToggleButton>
 					</ToggleButtonGroup>
 
-					<TextField
-						label="Data de pagamento"
-						fullWidth
-						value={watch("payment_date") ?? ""}
-						onChange={(e) =>
-							setValue("payment_date", formatDisplayDateInput(e.target.value), {
-								shouldValidate: true,
-							})
-						}
-						placeholder="dd-mm-aaaa"
-						slotProps={{
-							htmlInput: {
-								inputMode: "numeric",
-								maxLength: 10,
-							},
-						}}
-						error={!!errors.payment_date}
-						helperText={errors.payment_date?.message}
-					/>
+					<LocalizationProvider dateAdapter={AdapterDayjs}>
+						<DatePicker
+							label="Data de pagamento"
+							format="DD/MM/YYYY"
+							value={
+								watch("payment_date") ? dayjs(watch("payment_date")) : null
+							}
+							onChange={(value: Dayjs | null) =>
+								setValue(
+									"payment_date",
+									value ? value.format("YYYY-MM-DD") : null,
+									{
+										shouldValidate: true,
+									},
+								)
+							}
+							slotProps={{
+								textField: {
+									fullWidth: true,
+									error: !!errors.payment_date,
+									helperText: errors.payment_date?.message,
+								},
+							}}
+							disableFuture
+						/>
+					</LocalizationProvider>
 
 					<Controller
 						name="category_id"

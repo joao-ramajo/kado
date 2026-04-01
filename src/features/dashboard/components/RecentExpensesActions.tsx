@@ -66,10 +66,10 @@ export const RecentExpensesActions = ({
 						flex: { xs: 1, sm: "0 1 auto" },
 						minWidth: { xs: "auto", sm: 120 },
 					}}
-					disabled={isLoading}
-					onClick={downloadExpensesCsv}
+					disabled={isLoading || isImporting}
+					onClick={importExpensesCsv}
 				>
-					Exportar Backup
+					{isImporting ? "Importando..." : "Importar Backup"}
 				</Button>
 				<Button
 					variant="outlined"
@@ -80,10 +80,10 @@ export const RecentExpensesActions = ({
 						flex: { xs: 1, sm: "0 1 auto" },
 						minWidth: { xs: "auto", sm: 120 },
 					}}
-					disabled={isLoading || isImporting}
-					onClick={importExpensesCsv}
+					disabled={isLoading}
+					onClick={downloadExpensesCsv}
 				>
-					{isImporting ? "Importando..." : "Importar Backup"}
+					Exportar Backup
 				</Button>
 				<Button
 					variant="outlined"

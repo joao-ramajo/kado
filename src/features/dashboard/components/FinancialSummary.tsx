@@ -41,22 +41,6 @@ export function FinancialSummary() {
 			color: "#3b82f6",
 			bgColor: "#eff6ff",
 		},
-		{
-			id: "card_open",
-			icon: TrendingDownIcon,
-			label: "Faturas em aberto",
-			value: data?.credit_card_open_total,
-			color: "#f59e0b",
-			bgColor: "#fffbeb",
-		},
-		{
-			id: "card_limit",
-			icon: AccountBalanceWalletIcon,
-			label: "Limite usado",
-			value: data?.credit_card_limit_used,
-			color: "#8b5cf6",
-			bgColor: "#f5f3ff",
-		},
 	];
 
 	return (
@@ -78,7 +62,7 @@ export function FinancialSummary() {
 					gridTemplateColumns: {
 						xs: "1fr",
 						sm: "repeat(2, 1fr)",
-						lg: "repeat(5, 1fr)",
+						lg: "repeat(3, 1fr)",
 					},
 					gap: 2,
 				}}

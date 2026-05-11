@@ -140,7 +140,7 @@ export function Footer() {
 						</Typography>
 						<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 							<Link
-								href="/"
+								href="/inicio"
 								underline="none"
 								sx={{
 									color: "#6B7280",

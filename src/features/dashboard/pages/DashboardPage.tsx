@@ -15,7 +15,7 @@ export const DashbaordPage = () => {
 						color: "#6B7280",
 						"&:hover": { color: "#0066FF" },
 					}}
-					href="/"
+					href="/inicio"
 				>
 					<Home sx={{ mr: 0.5, fontSize: 18 }} />
 					Início

@@ -55,7 +55,7 @@ export function Header() {
 	const userMenuOpen = Boolean(anchorEl);
 
 	const menuItems: ItemMenu[] = [
-		{ label: "Home", to: "/", public: true },
+		{ label: "Home", to: "/inicio", public: true },
 		{ label: "Apoie", to: "/apoie", public: true },
 		{ label: "Guia de Uso", to: "/guia-de-uso", public: true },
 	];
@@ -115,7 +115,7 @@ export function Header() {
 					>
 						{/* Logo */}
 						<Link
-							to="/"
+							to="/inicio"
 							style={{
 								textDecoration: "none",
 								color: "inherit",

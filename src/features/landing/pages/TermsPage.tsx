@@ -64,7 +64,7 @@ export const TermsPage = () => {
 							color: "#6B7280",
 							"&:hover": { color: "#0066FF" },
 						}}
-						href="/"
+						href="/inicio"
 					>
 						<Home sx={{ mr: 0.5, fontSize: 18 }} />
 						Início
@@ -1073,7 +1073,7 @@ export const TermsPage = () => {
 								<Typography sx={{ fontWeight: 600, color: "#1F2937" }}>
 									Site:
 									<Link
-										href="/"
+										href="/inicio"
 										sx={{
 											ml: 1,
 											color: "#0066FF",
@@ -1107,7 +1107,7 @@ export const TermsPage = () => {
 						variant="contained"
 						size="large"
 						startIcon={<Home />}
-						onClick={() => navigate("/")}
+						onClick={() => navigate("/inicio")}
 						sx={{
 							bgcolor: "#0066FF",
 							px: 4,

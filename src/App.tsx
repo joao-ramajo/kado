@@ -4,6 +4,7 @@ import { LoginPage } from "./features/auth/pages/LoginPage";
 import { RegisterPage } from "./features/auth/pages/RegisterPage";
 import { DashbaordPage } from "./features/dashboard/pages/DashboardPage";
 import { AboutPage } from "./features/landing/pages/AboutPage";
+import { EntryPage } from "./features/landing/pages/EntryPage";
 import { GuidePage } from "./features/landing/pages/GuidePage";
 import { Home } from "./features/landing/pages/Home";
 import { ResourcesPage } from "./features/landing/pages/ResourcePage";
@@ -16,7 +17,8 @@ export default function App() {
 		<BrowserRouter>
 			<MainLayout>
 				<Routes>
-					<Route path="/" element={<Home />} />
+					<Route path="/" element={<EntryPage />} />
+					<Route path="/inicio" element={<Home />} />
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/cadastre-se" element={<RegisterPage />} />
 					<Route

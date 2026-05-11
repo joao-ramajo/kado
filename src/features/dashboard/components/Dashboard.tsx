@@ -1,12 +1,14 @@
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import CategoryIcon from "@mui/icons-material/Category";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import SummarizeIcon from "@mui/icons-material/Summarize";
 import { Box, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 import CategoryModalContextProvider from "../context/CategoryModalContextProvider";
 import ExpenseModalContextProvider from "../context/ExpenseModalContextProvider";
 import SourceModalContextProvider from "../context/SourceModalContextProvider";
 import { CategoriesArea } from "./CategoriesArea";
+import { CreditCardStatementsArea } from "./CreditCardStatementsArea";
 import { FinancialSummary } from "./FinancialSummary";
 import { RecentExpenses } from "./RecentExpenses";
 import { SourcesArea } from "./SourceArea";
@@ -32,6 +34,12 @@ export function Dashboard() {
 		},
 		{
 			id: 2,
+			label: "Resumos",
+			icon: <SummarizeIcon />,
+			component: <CreditCardStatementsArea />,
+		},
+		{
+			id: 3,
 			label: "Categorias",
 			icon: <CategoryIcon />,
 			component: (
@@ -43,7 +51,7 @@ export function Dashboard() {
 			),
 		},
 		{
-			id: 3,
+			id: 4,
 			icon: <AccountBalanceWalletIcon />,
 			label: "Fontes",
 			component: (

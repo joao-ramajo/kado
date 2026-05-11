@@ -5,6 +5,8 @@ export type GetSummaryResponse = {
 	total_receive: number;
 	total_expense: number;
 	expected_total: number;
+	credit_card_open_total: number;
+	credit_card_limit_used: number;
 };
 
 export const getSummary = async (): Promise<GetSummaryResponse> => {

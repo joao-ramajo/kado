@@ -41,6 +41,22 @@ export function FinancialSummary() {
 			color: "#3b82f6",
 			bgColor: "#eff6ff",
 		},
+		{
+			id: "card_open",
+			icon: TrendingDownIcon,
+			label: "Faturas em aberto",
+			value: data?.credit_card_open_total,
+			color: "#f59e0b",
+			bgColor: "#fffbeb",
+		},
+		{
+			id: "card_limit",
+			icon: AccountBalanceWalletIcon,
+			label: "Limite usado",
+			value: data?.credit_card_limit_used,
+			color: "#8b5cf6",
+			bgColor: "#f5f3ff",
+		},
 	];
 
 	return (
@@ -58,8 +74,12 @@ export function FinancialSummary() {
 
 			<Box
 				sx={{
-					display: "flex",
-					flexDirection: { xs: "column", sm: "row" },
+					display: "grid",
+					gridTemplateColumns: {
+						xs: "1fr",
+						sm: "repeat(2, 1fr)",
+						lg: "repeat(5, 1fr)",
+					},
 					gap: 2,
 				}}
 			>
@@ -76,8 +96,6 @@ export function FinancialSummary() {
 							key={card.id}
 							elevation={0}
 							sx={{
-								flex: 1,
-								minWidth: { xs: "100%", sm: 200 },
 								border: "1px solid",
 								borderColor: "divider",
 								transition: "all 0.2s ease-in-out",

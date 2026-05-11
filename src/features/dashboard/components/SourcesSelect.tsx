@@ -31,6 +31,7 @@ export const SourcesSelect = ({
 				{sources.map((source) => (
 					<MenuItem key={source.id} value={source.id}>
 						{source.name}
+						{source.type === "credit_card" ? " • Cartão" : ""}
 					</MenuItem>
 				))}
 			</Select>

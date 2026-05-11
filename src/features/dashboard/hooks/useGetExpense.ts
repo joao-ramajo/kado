@@ -12,7 +12,15 @@ export type Expense = {
 	type: "expense" | "income";
 	status: "paid" | "pending" | "overdue";
 	source_id: number;
+	source_type: "cash_like" | "credit_card";
 	source_name: string;
+	origin_type: "direct" | "credit_card";
+	occurrence_type: "direct" | "purchase" | "invoice_payment";
+	installment_number: number | null;
+	installment_total: number | null;
+	purchase_date: string | null;
+	credit_card_statement_id: number | null;
+	statement_reference_month: string | null;
 };
 
 export type GetExpenseResponse = Expense[];

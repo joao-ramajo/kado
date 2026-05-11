@@ -55,6 +55,9 @@ const statusConfig = {
 export function ExpenseItem({ expense }: ExpenseItemProps) {
 	const status = statusConfig[expense.status];
 	const isIncome = expense.type === "income";
+	const isCreditCardPurchase = expense.origin_type === "credit_card";
+	const isInvoicePayment = expense.occurrence_type === "invoice_payment";
+	const isLockedFromCommonActions = isCreditCardPurchase || isInvoicePayment;
 
 	const formatDate = (dateString: string | null) => {
 		if (!dateString) return null;
@@ -110,13 +113,25 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 						border: "1px solid #E5E7EB",
 					}}
 				>
-					<Tooltip title="Editar" onClick={() => selectAction("edit", expense)}>
-						<IconButton size="small">
+					<Tooltip
+						title={
+							isLockedFromCommonActions
+								? "Este registro é controlado pela fatura."
+								: "Editar"
+						}
+					>
+						<IconButton
+							size="small"
+							onClick={() =>
+								!isLockedFromCommonActions && selectAction("edit", expense)
+							}
+							disabled={isLockedFromCommonActions}
+						>
 							<Edit fontSize="small" />
 						</IconButton>
 					</Tooltip>
 
-					{expense.status !== "paid" && (
+					{expense.status !== "paid" && !isLockedFromCommonActions && (
 						<Tooltip title="Marcar como pago">
 							<IconButton
 								size="small"
@@ -127,11 +142,20 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 						</Tooltip>
 					)}
 
-					<Tooltip title="Excluir">
+					<Tooltip
+						title={
+							isLockedFromCommonActions
+								? "Este registro é controlado pela fatura."
+								: "Excluir"
+						}
+					>
 						<IconButton
 							size="small"
 							color="error"
-							onClick={() => deleteExpense({ id: expense.id })}
+							onClick={() =>
+								!isLockedFromCommonActions && deleteExpense({ id: expense.id })
+							}
+							disabled={isLockedFromCommonActions}
 						>
 							<Delete fontSize="small" />
 						</IconButton>
@@ -185,6 +209,23 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 									{expense.source_name}
 								</Typography>
 							</Box>
+						)}
+
+						{expense.installment_total && expense.installment_number && (
+							<Chip
+								label={`${expense.installment_number}/${expense.installment_total}`}
+								size="small"
+								sx={{ width: "fit-content", mt: 0.5 }}
+							/>
+						)}
+
+						{isInvoicePayment && (
+							<Chip
+								label="Pagamento de fatura"
+								size="small"
+								color="primary"
+								sx={{ width: "fit-content", mt: 0.5 }}
+							/>
 						)}
 					</Stack>
 				</Box>

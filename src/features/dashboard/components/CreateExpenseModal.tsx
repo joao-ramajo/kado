@@ -8,6 +8,7 @@ import {
 	TrendingUp,
 } from "@mui/icons-material";
 import {
+	Box,
 	Button,
 	Dialog,
 	DialogActions,
@@ -96,6 +97,8 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 			type: "expense",
 			status: "pending",
 			payment_date: null,
+			purchase_date: null,
+			installment_total: 1,
 			category_id: null,
 			source_id: null,
 		},
@@ -107,13 +110,27 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 	const status = watch("status");
 	const amount = watch("amount");
 	const paymentDate = watch("payment_date");
+	const purchaseDate = watch("purchase_date");
+	const sourceId = watch("source_id");
+	const installmentTotal = watch("installment_total");
 
 	const { mutateAsync, isPending: isLoading } = useCreateExpenseMutation();
 	const { data } = useGetCategoryListQuery();
 	const queryClient = useQueryClient();
 	const { data: sourceDataList } = useGetSourceQuery();
 
-	const defaultSource = sourceDataList?.find((s) => s.is_default) ?? null;
+	const defaultCashSource =
+		sourceDataList?.find((s) => s.is_default && s.type === "cash_like") ??
+		sourceDataList?.find((s) => s.type === "cash_like") ??
+		null;
+	const selectedSource =
+		sourceDataList?.find((source) => source.id === sourceId) ??
+		defaultCashSource;
+	const isCreditCardSource = selectedSource?.type === "credit_card";
+	const selectableSources =
+		type === "income"
+			? (sourceDataList || []).filter((source) => source.type === "cash_like")
+			: sourceDataList || [];
 
 	function handleAmountChange(value: string) {
 		const numeric = value.replace(/\D/g, "");
@@ -130,10 +147,50 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 	}
 
 	useEffect(() => {
-		setValue("source_id", defaultSource?.id);
-	}, [defaultSource, setValue]);
+		if (!sourceDataList?.length) return;
+
+		if (!sourceId) {
+			setValue(
+				"source_id",
+				defaultCashSource?.id ?? sourceDataList[0]?.id ?? null,
+			);
+			return;
+		}
+
+		const currentSource = sourceDataList.find(
+			(source) => source.id === sourceId,
+		);
+
+		if (!currentSource) {
+			setValue(
+				"source_id",
+				defaultCashSource?.id ?? sourceDataList[0]?.id ?? null,
+			);
+			return;
+		}
+
+		if (type === "income" && currentSource.type === "credit_card") {
+			setValue("source_id", defaultCashSource?.id ?? null);
+		}
+	}, [defaultCashSource, setValue, sourceDataList, sourceId, type]);
 
 	useEffect(() => {
+		if (isCreditCardSource) {
+			setValue("type", "expense");
+			setValue("status", "pending");
+			setValue("payment_date", null);
+			if (!purchaseDate) {
+				setValue("purchase_date", getCurrentDateIso());
+			}
+			if (!installmentTotal) {
+				setValue("installment_total", 1);
+			}
+			return;
+		}
+
+		setValue("purchase_date", null);
+		setValue("installment_total", 1);
+
 		if (status !== "paid") {
 			setValue("payment_date", null);
 			return;
@@ -142,13 +199,28 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 		if (!paymentDate) {
 			setValue("payment_date", getCurrentDateIso());
 		}
-	}, [status, paymentDate, setValue]);
+	}, [
+		installmentTotal,
+		isCreditCardSource,
+		paymentDate,
+		purchaseDate,
+		setValue,
+		status,
+	]);
 
 	function onSubmit(data: CreateExpenseFormData) {
 		const normalizedData: CreateExpenseFormData = {
 			...data,
+			type: isCreditCardSource ? "expense" : data.type,
+			status: isCreditCardSource ? "pending" : data.status,
 			payment_date:
-				data.status === "paid" ? toBackendDate(data.payment_date) : null,
+				!isCreditCardSource && data.status === "paid"
+					? toBackendDate(data.payment_date)
+					: null,
+			purchase_date: isCreditCardSource
+				? toBackendDate(data.purchase_date)
+				: null,
+			installment_total: isCreditCardSource ? (data.installment_total ?? 1) : 1,
 		};
 
 		mutateAsync(normalizedData, {
@@ -158,6 +230,9 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 				});
 				queryClient.invalidateQueries({
 					queryKey: ["dashboard-summary"],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ["dashboard-sources"],
 				});
 				toast.success(response.message);
 				handleClose();
@@ -209,20 +284,44 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
 				>
 					{/* Tipo */}
-					<FormLabel>Tipo</FormLabel>
-					<ToggleButtonGroup
-						value={type}
-						exclusive
-						onChange={(_, v) => v && setValue("type", v)}
-						fullWidth
-					>
-						<ToggleButton value="expense">
-							<TrendingDown sx={{ mr: 1 }} /> Despesa
-						</ToggleButton>
-						<ToggleButton value="income">
-							<TrendingUp sx={{ mr: 1 }} /> Receita
-						</ToggleButton>
-					</ToggleButtonGroup>
+					{!isCreditCardSource && (
+						<>
+							<FormLabel>Tipo</FormLabel>
+							<ToggleButtonGroup
+								value={type}
+								exclusive
+								onChange={(_, v) => v && setValue("type", v)}
+								fullWidth
+							>
+								<ToggleButton value="expense">
+									<TrendingDown sx={{ mr: 1 }} /> Despesa
+								</ToggleButton>
+								<ToggleButton value="income">
+									<TrendingUp sx={{ mr: 1 }} /> Receita
+								</ToggleButton>
+							</ToggleButtonGroup>
+						</>
+					)}
+
+					{isCreditCardSource && (
+						<Box
+							sx={{
+								p: 2,
+								borderRadius: 2,
+								bgcolor: "info.50",
+								border: "1px solid",
+								borderColor: "info.200",
+							}}
+						>
+							<Typography fontWeight={600} sx={{ mb: 0.5 }}>
+								Compra no cartão
+							</Typography>
+							<Typography variant="body2" color="text.secondary">
+								A compra entra na fatura do cartão e só afeta o caixa quando a
+								fatura for paga.
+							</Typography>
+						</Box>
+					)}
 
 					{/* Título */}
 					<TextField
@@ -258,23 +357,26 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 						helperText={errors.amount?.message}
 					/>
 
-					{/* Status */}
-					<FormLabel>Status</FormLabel>
-					<ToggleButtonGroup
-						value={status}
-						exclusive
-						onChange={(_, v) => v && setValue("status", v)}
-						fullWidth
-					>
-						<ToggleButton value="paid">
-							<CheckCircle sx={{ mr: 1 }} /> Pago
-						</ToggleButton>
-						<ToggleButton value="pending">
-							<Schedule sx={{ mr: 1 }} /> Pendente
-						</ToggleButton>
-					</ToggleButtonGroup>
+					{!isCreditCardSource && (
+						<>
+							<FormLabel>Status</FormLabel>
+							<ToggleButtonGroup
+								value={status}
+								exclusive
+								onChange={(_, v) => v && setValue("status", v)}
+								fullWidth
+							>
+								<ToggleButton value="paid">
+									<CheckCircle sx={{ mr: 1 }} /> Pago
+								</ToggleButton>
+								<ToggleButton value="pending">
+									<Schedule sx={{ mr: 1 }} /> Pendente
+								</ToggleButton>
+							</ToggleButtonGroup>
+						</>
+					)}
 
-					{status === "paid" && (
+					{!isCreditCardSource && status === "paid" && (
 						<LocalizationProvider dateAdapter={AdapterDayjs}>
 							<DatePicker
 								label="Data de pagamento"
@@ -301,6 +403,56 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 						</LocalizationProvider>
 					)}
 
+					{isCreditCardSource && (
+						<Box
+							sx={{
+								display: "grid",
+								gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+								gap: 2,
+							}}
+						>
+							<LocalizationProvider dateAdapter={AdapterDayjs}>
+								<DatePicker
+									label="Data da compra"
+									format="DD/MM/YYYY"
+									value={purchaseDate ? dayjs(purchaseDate) : null}
+									onChange={(value: Dayjs | null) => {
+										setValue(
+											"purchase_date",
+											value ? value.format("YYYY-MM-DD") : null,
+											{
+												shouldValidate: true,
+											},
+										);
+									}}
+									slotProps={{
+										textField: {
+											fullWidth: true,
+											error: !!errors.purchase_date,
+											helperText: errors.purchase_date?.message,
+										},
+									}}
+									disableFuture
+								/>
+							</LocalizationProvider>
+							<TextField
+								label="Parcelas"
+								type="number"
+								value={installmentTotal ?? 1}
+								onChange={(event) =>
+									setValue(
+										"installment_total",
+										Math.max(1, Number(event.target.value || 1)),
+										{ shouldValidate: true },
+									)
+								}
+								inputProps={{ min: 1, max: 24 }}
+								error={!!errors.installment_total}
+								helperText={errors.installment_total?.message ?? "Até 24x"}
+							/>
+						</Box>
+					)}
+
 					<Controller
 						name="category_id"
 						control={control}
@@ -318,9 +470,9 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 						control={control}
 						render={({ field }) => (
 							<SourcesSelect
-								value={field.value ?? defaultSource?.id ?? null}
+								value={field.value ?? defaultCashSource?.id ?? null}
 								onChange={field.onChange}
-								sources={sourceDataList || []}
+								sources={selectableSources}
 							/>
 						)}
 					/>
@@ -336,7 +488,7 @@ export function CreateExpenseModal({ open, onClose }: CreateExpenseModalProps) {
 						disabled={!watch("title") || !amount}
 						loading={isLoading}
 					>
-						Salvar
+						{isCreditCardSource ? "Registrar compra" : "Salvar"}
 					</Button>
 				</DialogActions>
 			</form>

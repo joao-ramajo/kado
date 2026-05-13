@@ -55,10 +55,9 @@ const statusConfig = {
 export function ExpenseItem({ expense }: ExpenseItemProps) {
 	const status = statusConfig[expense.status];
 	const isIncome = expense.type === "income";
-	const isCreditCardPurchase = expense.origin_type === "credit_card";
 	const isInvoicePayment = expense.occurrence_type === "invoice_payment";
 	const isLockedFromEdit = isInvoicePayment;
-	const isLockedFromCommonActions = isCreditCardPurchase || isInvoicePayment;
+	const isLockedFromCommonActions = isInvoicePayment;
 
 	const formatDate = (dateString: string | null) => {
 		if (!dateString) return null;

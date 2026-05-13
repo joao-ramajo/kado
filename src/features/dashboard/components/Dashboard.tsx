@@ -34,7 +34,7 @@ export function Dashboard() {
 		},
 		{
 			id: 2,
-			label: "Resumos",
+			label: "Faturas",
 			icon: <SummarizeIcon />,
 			component: <CreditCardStatementsArea />,
 		},
@@ -50,20 +50,16 @@ export function Dashboard() {
 				</ExpenseModalContextProvider>
 			),
 		},
-		{
-			id: 4,
-			icon: <AccountBalanceWalletIcon />,
-			label: "Fontes",
-			component: (
-				<SourceModalContextProvider>
-					<SourcesArea />
-				</SourceModalContextProvider>
-			),
-		},
-	];
+			{
+				id: 4,
+				icon: <AccountBalanceWalletIcon />,
+				label: "Fontes",
+				component: <SourcesArea />,
+			},
+		];
 
 	return (
-		<>
+		<SourceModalContextProvider>
 			{/* Header com Breadcrumb */}
 			<Box
 				sx={{
@@ -127,6 +123,6 @@ export function Dashboard() {
 			>
 				{tabs[activeTab].component}
 			</Box>
-		</>
+		</SourceModalContextProvider>
 	);
 }

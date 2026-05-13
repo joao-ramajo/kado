@@ -2,12 +2,14 @@
 
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import {
 	Box,
 	Button,
 	Card,
 	CardContent,
 	Chip,
+	IconButton,
 	Typography,
 } from "@mui/material";
 import { useSourceModalContext } from "../context/SourceModalContextProvider";
@@ -127,6 +129,16 @@ export function SourcesArea() {
 											{source.is_default ? "Fonte principal" : "Fonte de caixa"}
 										</Typography>
 									</Box>
+									{!source.is_default ? (
+										<IconButton
+											size="small"
+											onClick={() => selectAction("edit", source)}
+											sx={{ ml: "auto" }}
+											aria-label={`Editar fonte ${source.name}`}
+										>
+											<EditIcon fontSize="small" />
+										</IconButton>
+									) : null}
 								</Box>
 
 								<Box

@@ -18,6 +18,9 @@ export type SourceDetail = {
 	type: SourceType;
 	color: string;
 	is_default: boolean;
+	allow_negative: boolean;
+	statement_closing_day: number | null;
+	statement_due_day: number | null;
 	expenses_count: number;
 	total_income?: number | null;
 	total_expense?: number | null;

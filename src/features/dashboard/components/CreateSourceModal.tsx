@@ -23,10 +23,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import dayjs, { type Dayjs } from "dayjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import type { LaravelValidationError } from "../../../api/instance";
 import { useCreateSourceMutation } from "../hooks/useCreateSourceMutation";
+import type { SourceDetail } from "../hooks/useGetSourceDetailsQuery";
+import { useUpdateSourceMutation } from "../hooks/useUpdateSourceMutation";
 import { createSourceSchema } from "../schemas/createSource.schema";
 
 const Transition = React.forwardRef(function Transition(
@@ -49,23 +51,41 @@ const PRESET_COLORS = [
 	"#78716c",
 ];
 
+const DEFAULT_COLOR = PRESET_COLORS[0];
+
 const toDayPickerValue = (day: string) => {
 	if (!day) return null;
 
 	return dayjs().date(Number(day));
 };
 
+const formatCurrencyValue = (value: number | null) => {
+	if (!value) return "";
+
+	return (value / 100).toLocaleString("pt-BR", {
+		style: "currency",
+		currency: "BRL",
+	});
+};
+
 type CreateSourceModalProps = {
 	open: boolean;
+	mode: "create" | "edit";
+	source?: SourceDetail;
 	onClose: () => void;
 };
 
-export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
+export function CreateSourceModal({
+	open,
+	mode,
+	source,
+	onClose,
+}: CreateSourceModalProps) {
 	const [name, setName] = useState("");
 	const [sourceType, setSourceType] = useState<"cash_like" | "credit_card">(
 		"cash_like",
 	);
-	const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
+	const [selectedColor, setSelectedColor] = useState(DEFAULT_COLOR);
 	const [allowNegative, setAllowNegative] = useState(false);
 	const [creditLimitDisplay, setCreditLimitDisplay] = useState("");
 	const [creditLimit, setCreditLimit] = useState<number | null>(null);
@@ -73,8 +93,48 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 	const [statementDueDay, setStatementDueDay] = useState("");
 	const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-	const { mutateAsync, isPending: isLoading } = useCreateSourceMutation();
+	const { mutateAsync: createSource, isPending: isCreating } =
+		useCreateSourceMutation();
+	const { mutateAsync: updateSource, isPending: isUpdating } =
+		useUpdateSourceMutation();
 	const queryClient = useQueryClient();
+	const isEditMode = mode === "edit";
+
+	useEffect(() => {
+		if (!open) {
+			return;
+		}
+
+		if (isEditMode && source) {
+			setName(source.name);
+			setSourceType(source.type);
+			setSelectedColor(source.color);
+			setAllowNegative(source.allow_negative);
+			setCreditLimit(source.credit_limit ?? null);
+			setCreditLimitDisplay(formatCurrencyValue(source.credit_limit ?? null));
+			setStatementClosingDay(
+				source.statement_closing_day
+					? String(source.statement_closing_day).padStart(2, "0")
+					: "",
+			);
+			setStatementDueDay(
+				source.statement_due_day
+					? String(source.statement_due_day).padStart(2, "0")
+					: "",
+			);
+		} else {
+			setName("");
+			setSourceType("cash_like");
+			setSelectedColor(DEFAULT_COLOR);
+			setAllowNegative(false);
+			setCreditLimitDisplay("");
+			setCreditLimit(null);
+			setStatementClosingDay("");
+			setStatementDueDay("");
+		}
+
+		setFormErrors({});
+	}, [open, isEditMode, source]);
 
 	function handleCreditLimitChange(value: string) {
 		const numeric = value.replace(/\D/g, "");
@@ -92,22 +152,11 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 	}
 
 	function handleClose() {
-		setName("");
-		setSourceType("cash_like");
-		setSelectedColor(PRESET_COLORS[0]);
-		setAllowNegative(false);
-		setCreditLimitDisplay("");
-		setCreditLimit(null);
-		setStatementClosingDay("");
-		setStatementDueDay("");
-		setFormErrors({});
 		onClose();
 	}
 
-	function handleSubmit(e: React.SubmitEvent) {
-		e.preventDefault();
-
-		const parsed = createSourceSchema.safeParse({
+	function buildPayload() {
+		return {
 			name,
 			type: sourceType,
 			color: selectedColor,
@@ -121,7 +170,18 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 				sourceType === "credit_card" && statementDueDay
 					? Number(statementDueDay)
 					: null,
-		});
+		};
+	}
+
+	function handleSubmit(e: React.SubmitEvent) {
+		e.preventDefault();
+
+		if (isEditMode && !source) {
+			toast.error("Fonte inválida.");
+			return;
+		}
+
+		const parsed = createSourceSchema.safeParse(buildPayload());
 
 		if (!parsed.success) {
 			const nextErrors = Object.fromEntries(
@@ -136,8 +196,17 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 
 		setFormErrors({});
 
-		mutateAsync(parsed.data, {
-			onSuccess: (response) => {
+		const sourceId = source?.id;
+		const mutation =
+			isEditMode && sourceId !== undefined
+				? updateSource({
+						id: sourceId,
+						data: parsed.data,
+					})
+				: createSource(parsed.data);
+
+		mutation
+			.then((response) => {
 				toast.success(response.message);
 				queryClient.invalidateQueries({
 					queryKey: ["dashboard-sources"],
@@ -146,8 +215,8 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 					queryKey: ["user-sources"],
 				});
 				handleClose();
-			},
-			onError: (error: AxiosError<LaravelValidationError>) => {
+			})
+			.catch((error: AxiosError<LaravelValidationError>) => {
 				const status = error.response?.status;
 				const apiError = error.response?.data;
 
@@ -156,9 +225,14 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 				} else {
 					toast.error("Erro inesperado");
 				}
-			},
-		});
+			});
 	}
+
+	const isSubmitting = isCreating || isUpdating;
+	const typeLabel =
+		sourceType === "credit_card" ? "Cartão de crédito" : "Conta de caixa";
+	const previewLabel =
+		name || (sourceType === "credit_card" ? "Novo cartão" : "Nome da fonte");
 
 	return (
 		<Dialog
@@ -174,7 +248,7 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 					sx={{ display: "flex", justifyContent: "space-between", pb: 2 }}
 				>
 					<Typography fontWeight={700} variant="h6">
-						Nova fonte
+						{isEditMode ? "Editar fonte" : "Nova fonte"}
 					</Typography>
 					<IconButton onClick={handleClose} size="small">
 						<Close />
@@ -191,23 +265,29 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 						>
 							Tipo de fonte
 						</Typography>
-						<ToggleButtonGroup
-							value={sourceType}
-							exclusive
-							fullWidth
-							onChange={(_, value) => {
-								if (!value) return;
+						{isEditMode ? (
+							<TextField value={typeLabel} fullWidth disabled />
+						) : (
+							<ToggleButtonGroup
+								value={sourceType}
+								exclusive
+								fullWidth
+								onChange={(_, value) => {
+									if (!value) return;
 
-								setSourceType(value);
-								setFormErrors({});
-								if (value === "credit_card") {
-									setAllowNegative(false);
-								}
-							}}
-						>
-							<ToggleButton value="cash_like">Conta de caixa</ToggleButton>
-							<ToggleButton value="credit_card">Cartão de crédito</ToggleButton>
-						</ToggleButtonGroup>
+									setSourceType(value);
+									setFormErrors({});
+									if (value === "credit_card") {
+										setAllowNegative(false);
+									}
+								}}
+							>
+								<ToggleButton value="cash_like">Conta de caixa</ToggleButton>
+								<ToggleButton value="credit_card">
+									Cartão de crédito
+								</ToggleButton>
+							</ToggleButtonGroup>
+						)}
 					</Box>
 
 					<TextField
@@ -388,12 +468,7 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 										border: `2px solid ${selectedColor}`,
 									}}
 								/>
-								<Typography sx={{ fontWeight: 600 }}>
-									{name ||
-										(sourceType === "credit_card"
-											? "Novo cartão"
-											: "Nome da fonte")}
-								</Typography>
+								<Typography sx={{ fontWeight: 600 }}>{previewLabel}</Typography>
 							</Box>
 						</Box>
 					</Box>
@@ -402,7 +477,7 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 				<DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
 					<Button
 						onClick={handleClose}
-						disabled={isLoading}
+						disabled={isSubmitting}
 						sx={{ textTransform: "none", borderRadius: 2, px: 3 }}
 					>
 						Cancelar
@@ -410,7 +485,7 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 					<Button
 						type="submit"
 						variant="contained"
-						disabled={!name.trim()}
+						disabled={!name.trim() || isSubmitting}
 						sx={{
 							textTransform: "none",
 							borderRadius: 2,
@@ -419,7 +494,7 @@ export function CreateSourceModal({ open, onClose }: CreateSourceModalProps) {
 							"&:hover": { bgcolor: selectedColor, filter: "brightness(0.9)" },
 						}}
 					>
-						Criar fonte
+						{isEditMode ? "Salvar alterações" : "Criar fonte"}
 					</Button>
 				</DialogActions>
 			</form>

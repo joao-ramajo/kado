@@ -1,14 +1,17 @@
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import EditIcon from "@mui/icons-material/Edit";
 import {
 	Box,
 	Button,
 	Card,
 	CardContent,
 	Chip,
+	IconButton,
 	Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSourceModalContext } from "../context/SourceModalContextProvider";
 import { getSourceDetailsQuery } from "../hooks/useGetSourceDetailsQuery";
 import { useGetSourceQuery } from "../hooks/useGetSourceListQuery";
 import { PayCreditCardStatementDialog } from "./PayCreditCardStatementDialog";
@@ -29,6 +32,7 @@ export function CreditCardStatementsArea() {
 		isError,
 	} = getSourceDetailsQuery();
 	const { data: sourceList = [] } = useGetSourceQuery();
+	const { selectAction } = useSourceModalContext();
 	const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
 
 	useEffect(() => {
@@ -143,6 +147,14 @@ export function CreditCardStatementsArea() {
 											Fatura do cartão
 										</Typography>
 									</Box>
+									<IconButton
+										size="small"
+										onClick={() => selectAction("edit", source)}
+										sx={{ ml: "auto" }}
+										aria-label={`Editar fonte ${source.name}`}
+									>
+										<EditIcon fontSize="small" />
+									</IconButton>
 								</Box>
 
 								<Box

@@ -106,220 +106,226 @@ export function CreditCardStatementsArea() {
 						gap: 2,
 					}}
 				>
-					{creditCardSources.map((source) => (
-						<Card
-							key={source.id}
-							elevation={0}
-							sx={{
-								border: 1,
-								borderColor: "divider",
-								transition: "all 0.2s",
-								cursor: "pointer",
-								"&:hover": {
-									borderColor: source.color,
-									boxShadow: `0 4px 12px ${source.color}20`,
-								},
-								"&:active": {
-									transform: { xs: "scale(0.98)", sm: "none" },
-								},
-							}}
-						>
-							<CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-								<Box
-									sx={{
-										display: "flex",
-										alignItems: "center",
-										gap: 2,
-										mb: 2,
-									}}
-								>
+					{creditCardSources.map((source) => {
+						const lastPaidStatement = source.last_paid_statement;
+
+						return (
+							<Card
+								key={source.id}
+								elevation={0}
+								sx={{
+									border: 1,
+									borderColor: "divider",
+									transition: "all 0.2s",
+									cursor: "pointer",
+									"&:hover": {
+										borderColor: source.color,
+										boxShadow: `0 4px 12px ${source.color}20`,
+									},
+									"&:active": {
+										transform: { xs: "scale(0.98)", sm: "none" },
+									},
+								}}
+							>
+								<CardContent sx={{ p: { xs: 2, sm: 3 } }}>
 									<Box
 										sx={{
-											width: { xs: 36, sm: 40 },
-											height: { xs: 36, sm: 40 },
-											borderRadius: 2,
-											bgcolor: `${source.color}15`,
 											display: "flex",
 											alignItems: "center",
-											justifyContent: "center",
-											flexShrink: 0,
+											gap: 2,
+											mb: 2,
 										}}
 									>
-										<CreditCardIcon
+										<Box
 											sx={{
-												color: source.color,
-												fontSize: { xs: 18, sm: 20 },
-											}}
-										/>
-									</Box>
-									<Box sx={{ minWidth: 0 }}>
-										<Typography
-											variant="h6"
-											sx={{
-												fontWeight: 600,
-												fontSize: { xs: "1rem", sm: "1.25rem" },
+												width: { xs: 36, sm: 40 },
+												height: { xs: 36, sm: 40 },
+												borderRadius: 2,
+												bgcolor: `${source.color}15`,
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "center",
+												flexShrink: 0,
 											}}
 										>
-											{source.name}
+											<CreditCardIcon
+												sx={{
+													color: source.color,
+													fontSize: { xs: 18, sm: 20 },
+												}}
+											/>
+										</Box>
+										<Box sx={{ minWidth: 0 }}>
+											<Typography
+												variant="h6"
+												sx={{
+													fontWeight: 600,
+													fontSize: { xs: "1rem", sm: "1.25rem" },
+												}}
+											>
+												{source.name}
+											</Typography>
+											<Typography variant="body2" color="text.secondary">
+												Fatura do cartão
+											</Typography>
+										</Box>
+										<IconButton
+											size="small"
+											onClick={() => selectAction("edit", source)}
+											sx={{ ml: "auto" }}
+											aria-label={`Editar fonte ${source.name}`}
+										>
+											<EditIcon fontSize="small" />
+										</IconButton>
+									</Box>
+
+									<Box
+										sx={{
+											display: "grid",
+											gridTemplateColumns: { xs: "auto 1fr", sm: "1fr 1fr" },
+											gap: 1,
+										}}
+									>
+										<Typography>Limite:</Typography>
+										<Typography
+											fontWeight={500}
+											textAlign={{ xs: "right", sm: "left" }}
+										>
+											{formatMoney(source.credit_limit ?? 0)}
 										</Typography>
-										<Typography variant="body2" color="text.secondary">
-											Fatura do cartão
+										<Typography>Usado:</Typography>
+										<Typography
+											fontWeight={500}
+											textAlign={{ xs: "right", sm: "left" }}
+										>
+											{formatMoney(source.used_limit ?? 0)}
+										</Typography>
+										<Typography>Disponível:</Typography>
+										<Typography
+											fontWeight={600}
+											color={
+												(source.available_limit ?? 0) >= 0
+													? "success.main"
+													: "error.main"
+											}
+											textAlign={{ xs: "right", sm: "left" }}
+										>
+											{formatMoney(source.available_limit ?? 0)}
 										</Typography>
 									</Box>
-									<IconButton
-										size="small"
-										onClick={() => selectAction("edit", source)}
-										sx={{ ml: "auto" }}
-										aria-label={`Editar fonte ${source.name}`}
-									>
-										<EditIcon fontSize="small" />
-									</IconButton>
-								</Box>
 
-								<Box
-									sx={{
-										display: "grid",
-										gridTemplateColumns: { xs: "auto 1fr", sm: "1fr 1fr" },
-										gap: 1,
-									}}
-								>
-									<Typography>Limite:</Typography>
-									<Typography
-										fontWeight={500}
-										textAlign={{ xs: "right", sm: "left" }}
-									>
-										{formatMoney(source.credit_limit ?? 0)}
-									</Typography>
-									<Typography>Usado:</Typography>
-									<Typography
-										fontWeight={500}
-										textAlign={{ xs: "right", sm: "left" }}
-									>
-										{formatMoney(source.used_limit ?? 0)}
-									</Typography>
-									<Typography>Disponível:</Typography>
-									<Typography
-										fontWeight={600}
-										color={
-											(source.available_limit ?? 0) >= 0
-												? "success.main"
-												: "error.main"
-										}
-										textAlign={{ xs: "right", sm: "left" }}
-									>
-										{formatMoney(source.available_limit ?? 0)}
-									</Typography>
-								</Box>
-
-								<Box
-									sx={{
-										mt: 2,
-										p: 2,
-										borderRadius: 2,
-										bgcolor: "grey.50",
-										border: "1px solid",
-										borderColor: "divider",
-									}}
-								>
-									<Typography fontWeight={600} sx={{ mb: 0.5 }}>
-										{source.current_statement
-											? `Fatura ${formatMonthReference(source.current_statement.reference_month)}`
-											: "Sem fatura em aberto"}
-									</Typography>
-									{source.current_statement ? (
-										<>
-											<Typography variant="body2" color="text.secondary">
-												Fecha em{" "}
-												{new Date(
-													source.current_statement.closing_at,
-												).toLocaleDateString("pt-BR")}{" "}
-												• vence em{" "}
-												{new Date(
-													source.current_statement.due_at,
-												).toLocaleDateString("pt-BR")}
-											</Typography>
-											<Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
-												{formatMoney(source.current_statement.total_amount)}
-											</Typography>
-										</>
-									) : (
-										<Typography variant="body2" color="text.secondary">
-											As próximas compras aparecerão aqui conforme o ciclo da
-											fatura.
-										</Typography>
-									)}
-								</Box>
-
-								{source.last_paid_statement ? (
 									<Box
 										sx={{
 											mt: 2,
 											p: 2,
 											borderRadius: 2,
-											bgcolor: "warning.50",
+											bgcolor: "grey.50",
 											border: "1px solid",
-											borderColor: "warning.200",
+											borderColor: "divider",
 										}}
 									>
 										<Typography fontWeight={600} sx={{ mb: 0.5 }}>
-											Última fatura paga
+											{source.current_statement
+												? `Fatura ${formatMonthReference(source.current_statement.reference_month)}`
+												: "Sem fatura em aberto"}
 										</Typography>
-										<Typography variant="body2" color="text.secondary">
-											{source.last_paid_statement.reference_month
-												? `Referência ${formatMonthReference(source.last_paid_statement.reference_month)}`
-												: "Fatura paga recentemente"}
-										</Typography>
-										<Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
-											{formatMoney(source.last_paid_statement.total_amount)}
-										</Typography>
-										<Button
-											variant="outlined"
-											color="warning"
-											size="small"
-											onClick={() =>
-												handleUndoPayment(source.last_paid_statement.id)
-											}
-											disabled={isUndoing}
-											sx={{ mt: 1.5 }}
+										{source.current_statement ? (
+											<>
+												<Typography variant="body2" color="text.secondary">
+													Fecha em{" "}
+													{new Date(
+														source.current_statement.closing_at,
+													).toLocaleDateString("pt-BR")}{" "}
+													• vence em{" "}
+													{new Date(
+														source.current_statement.due_at,
+													).toLocaleDateString("pt-BR")}
+												</Typography>
+												<Typography
+													variant="h6"
+													fontWeight={700}
+													sx={{ mt: 1 }}
+												>
+													{formatMoney(source.current_statement.total_amount)}
+												</Typography>
+											</>
+										) : (
+											<Typography variant="body2" color="text.secondary">
+												As próximas compras aparecerão aqui conforme o ciclo da
+												fatura.
+											</Typography>
+										)}
+									</Box>
+
+									{lastPaidStatement ? (
+										<Box
+											sx={{
+												mt: 2,
+												p: 2,
+												borderRadius: 2,
+												bgcolor: "warning.50",
+												border: "1px solid",
+												borderColor: "warning.200",
+											}}
 										>
-											{isUndoing ? "Desfazendo..." : "Desfazer pagamento"}
+											<Typography fontWeight={600} sx={{ mb: 0.5 }}>
+												Última fatura paga
+											</Typography>
+											<Typography variant="body2" color="text.secondary">
+												{lastPaidStatement.reference_month
+													? `Referência ${formatMonthReference(lastPaidStatement.reference_month)}`
+													: "Fatura paga recentemente"}
+											</Typography>
+											<Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
+												{formatMoney(lastPaidStatement.total_amount)}
+											</Typography>
+											<Button
+												variant="outlined"
+												color="warning"
+												size="small"
+												onClick={() => handleUndoPayment(lastPaidStatement.id)}
+												disabled={isUndoing}
+												sx={{ mt: 1.5 }}
+											>
+												{isUndoing ? "Desfazendo..." : "Desfazer pagamento"}
+											</Button>
+										</Box>
+									) : null}
+
+									<Box
+										sx={{
+											display: "flex",
+											justifyContent: "space-between",
+											alignItems: "center",
+											gap: 2,
+											mt: 2,
+										}}
+									>
+										<Chip
+											label={`${source.expenses_count} parcelas registradas`}
+											size="small"
+											sx={{
+												bgcolor: `${source.color}15`,
+												color: source.color,
+												fontWeight: 500,
+											}}
+										/>
+										<Button
+											variant="contained"
+											size="small"
+											onClick={() => setSelectedCardId(source.id)}
+											disabled={
+												!source.current_statement ||
+												source.current_statement.total_amount <= 0
+											}
+										>
+											Pagar fatura
 										</Button>
 									</Box>
-								) : null}
-
-								<Box
-									sx={{
-										display: "flex",
-										justifyContent: "space-between",
-										alignItems: "center",
-										gap: 2,
-										mt: 2,
-									}}
-								>
-									<Chip
-										label={`${source.expenses_count} parcelas registradas`}
-										size="small"
-										sx={{
-											bgcolor: `${source.color}15`,
-											color: source.color,
-											fontWeight: 500,
-										}}
-									/>
-									<Button
-										variant="contained"
-										size="small"
-										onClick={() => setSelectedCardId(source.id)}
-										disabled={
-											!source.current_statement ||
-											source.current_statement.total_amount <= 0
-										}
-									>
-										Pagar fatura
-									</Button>
-								</Box>
-							</CardContent>
-						</Card>
-					))}
+								</CardContent>
+							</Card>
+						);
+					})}
 				</Box>
 			</Box>
 

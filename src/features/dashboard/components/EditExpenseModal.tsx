@@ -86,6 +86,7 @@ export function EditExpenseModal({
 	onClose,
 	expense,
 }: EditExpenseModalProps) {
+	const isCreditCardPurchase = expense?.origin_type === "credit_card";
 	const {
 		register,
 		handleSubmit,
@@ -220,6 +221,7 @@ export function EditExpenseModal({
 						exclusive
 						onChange={(_, v) => v && setValue("type", v)}
 						fullWidth
+						disabled={isCreditCardPurchase}
 					>
 						<ToggleButton value="expense">
 							<TrendingDown sx={{ mr: 1 }} /> Despesa
@@ -268,6 +270,7 @@ export function EditExpenseModal({
 						exclusive
 						onChange={(_, v) => v && setValue("status", v)}
 						fullWidth
+						disabled={isCreditCardPurchase}
 					>
 						<ToggleButton value="paid">
 							<CheckCircle sx={{ mr: 1 }} /> Pago
@@ -323,6 +326,7 @@ export function EditExpenseModal({
 								value={field.value ?? null}
 								onChange={field.onChange}
 								sources={sourceListData || []}
+								disabled={isCreditCardPurchase}
 							/>
 						)}
 					/>

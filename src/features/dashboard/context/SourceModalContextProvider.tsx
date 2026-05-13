@@ -26,10 +26,13 @@ const SourceModalContextProvider = ({
 	const [type, setType] = useState<ActionType>(null);
 	const [item, setItem] = useState<SourceDetail | undefined>(undefined);
 
-	const selectAction = useCallback((actionType: ActionType, item?: SourceDetail) => {
-		setType(actionType);
-		setItem(item);
-	}, []);
+	const selectAction = useCallback(
+		(actionType: ActionType, item?: SourceDetail) => {
+			setType(actionType);
+			setItem(item);
+		},
+		[],
+	);
 
 	const clearAction = useCallback(() => {
 		setType(null);

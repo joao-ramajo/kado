@@ -57,6 +57,7 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 	const isIncome = expense.type === "income";
 	const isCreditCardPurchase = expense.origin_type === "credit_card";
 	const isInvoicePayment = expense.occurrence_type === "invoice_payment";
+	const isLockedFromEdit = isInvoicePayment;
 	const isLockedFromCommonActions = isCreditCardPurchase || isInvoicePayment;
 
 	const formatDate = (dateString: string | null) => {
@@ -115,17 +116,15 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 				>
 					<Tooltip
 						title={
-							isLockedFromCommonActions
+							isLockedFromEdit
 								? "Este registro é controlado pela fatura."
 								: "Editar"
 						}
 					>
 						<IconButton
 							size="small"
-							onClick={() =>
-								!isLockedFromCommonActions && selectAction("edit", expense)
-							}
-							disabled={isLockedFromCommonActions}
+							onClick={() => !isLockedFromEdit && selectAction("edit", expense)}
+							disabled={isLockedFromEdit}
 						>
 							<Edit fontSize="small" />
 						</IconButton>

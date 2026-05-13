@@ -9,11 +9,13 @@ import {
 	IconButton,
 	Typography,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSourceModalContext } from "../context/SourceModalContextProvider";
 import { getSourceDetailsQuery } from "../hooks/useGetSourceDetailsQuery";
 import { useGetSourceQuery } from "../hooks/useGetSourceListQuery";
+import { useUndoPayCreditCardStatementMutation } from "../hooks/useUndoPayCreditCardStatementMutation";
 import { PayCreditCardStatementDialog } from "./PayCreditCardStatementDialog";
 
 const formatMoney = (value: number) =>
@@ -33,7 +35,10 @@ export function CreditCardStatementsArea() {
 	} = getSourceDetailsQuery();
 	const { data: sourceList = [] } = useGetSourceQuery();
 	const { selectAction } = useSourceModalContext();
+	const queryClient = useQueryClient();
 	const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+	const { mutateAsync: undoPayStatement, isPending: isUndoing } =
+		useUndoPayCreditCardStatementMutation();
 
 	useEffect(() => {
 		if (isError) {
@@ -53,6 +58,20 @@ export function CreditCardStatementsArea() {
 	if (!creditCardSources.length) {
 		return <Typography>Nenhuma fatura encontrada.</Typography>;
 	}
+
+	const handleUndoPayment = async (statementId: number) => {
+		try {
+			const response = await undoPayStatement({ statementId });
+			toast.success(response.message);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] }),
+				queryClient.invalidateQueries({ queryKey: ["dashboard-sources"] }),
+				queryClient.invalidateQueries({ queryKey: ["dashboard-expenses"] }),
+			]);
+		} catch (_error) {
+			toast.error("Não foi possível desfazer o pagamento da fatura.");
+		}
+	};
 
 	return (
 		<>
@@ -230,6 +249,43 @@ export function CreditCardStatementsArea() {
 										</Typography>
 									)}
 								</Box>
+
+								{source.last_paid_statement ? (
+									<Box
+										sx={{
+											mt: 2,
+											p: 2,
+											borderRadius: 2,
+											bgcolor: "warning.50",
+											border: "1px solid",
+											borderColor: "warning.200",
+										}}
+									>
+										<Typography fontWeight={600} sx={{ mb: 0.5 }}>
+											Última fatura paga
+										</Typography>
+										<Typography variant="body2" color="text.secondary">
+											{source.last_paid_statement.reference_month
+												? `Referência ${formatMonthReference(source.last_paid_statement.reference_month)}`
+												: "Fatura paga recentemente"}
+										</Typography>
+										<Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
+											{formatMoney(source.last_paid_statement.total_amount)}
+										</Typography>
+										<Button
+											variant="outlined"
+											color="warning"
+											size="small"
+											onClick={() =>
+												handleUndoPayment(source.last_paid_statement.id)
+											}
+											disabled={isUndoing}
+											sx={{ mt: 1.5 }}
+										>
+											{isUndoing ? "Desfazendo..." : "Desfazer pagamento"}
+										</Button>
+									</Box>
+								) : null}
 
 								<Box
 									sx={{

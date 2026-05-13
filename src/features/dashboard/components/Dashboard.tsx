@@ -50,13 +50,13 @@ export function Dashboard() {
 				</ExpenseModalContextProvider>
 			),
 		},
-			{
-				id: 4,
-				icon: <AccountBalanceWalletIcon />,
-				label: "Fontes",
-				component: <SourcesArea />,
-			},
-		];
+		{
+			id: 4,
+			icon: <AccountBalanceWalletIcon />,
+			label: "Fontes",
+			component: <SourcesArea />,
+		},
+	];
 
 	return (
 		<SourceModalContextProvider>

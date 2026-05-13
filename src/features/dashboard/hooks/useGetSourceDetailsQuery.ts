@@ -29,6 +29,7 @@ export type SourceDetail = {
 	used_limit?: number | null;
 	available_limit?: number | null;
 	current_statement?: CreditCardStatementSummary | null;
+	last_paid_statement?: CreditCardStatementSummary | null;
 };
 
 export type GetSourceDetailsResponse = SourceDetail[];

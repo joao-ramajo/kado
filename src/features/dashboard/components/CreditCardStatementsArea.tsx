@@ -1,4 +1,5 @@
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
 	Box,
@@ -13,9 +14,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSourceModalContext } from "../context/SourceModalContextProvider";
+import type { SourceDetail } from "../hooks/useGetSourceDetailsQuery";
 import { getSourceDetailsQuery } from "../hooks/useGetSourceDetailsQuery";
 import { useGetSourceQuery } from "../hooks/useGetSourceListQuery";
 import { useUndoPayCreditCardStatementMutation } from "../hooks/useUndoPayCreditCardStatementMutation";
+import { DeleteSourceDialog } from "./DeleteSourceDialog";
 import { PayCreditCardStatementDialog } from "./PayCreditCardStatementDialog";
 
 const formatMoney = (value: number) =>
@@ -37,6 +40,9 @@ export function CreditCardStatementsArea() {
 	const { selectAction } = useSourceModalContext();
 	const queryClient = useQueryClient();
 	const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+	const [sourceToDelete, setSourceToDelete] = useState<SourceDetail | null>(
+		null,
+	);
 	const { mutateAsync: undoPayStatement, isPending: isUndoing } =
 		useUndoPayCreditCardStatementMutation();
 
@@ -75,6 +81,11 @@ export function CreditCardStatementsArea() {
 
 	return (
 		<>
+			<DeleteSourceDialog
+				open={sourceToDelete !== null}
+				source={sourceToDelete}
+				onClose={() => setSourceToDelete(null)}
+			/>
 			<Box sx={{ mb: 4 }}>
 				<Box
 					sx={{
@@ -176,6 +187,14 @@ export function CreditCardStatementsArea() {
 											aria-label={`Editar fonte ${source.name}`}
 										>
 											<EditIcon fontSize="small" />
+										</IconButton>
+										<IconButton
+											size="small"
+											color="error"
+											onClick={() => setSourceToDelete(source)}
+											aria-label={`Excluir fonte ${source.name}`}
+										>
+											<DeleteIcon fontSize="small" />
 										</IconButton>
 									</Box>
 

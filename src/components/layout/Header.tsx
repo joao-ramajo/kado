@@ -1,5 +1,7 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -63,6 +65,33 @@ export function Header() {
 	const visibleMenuItems = menuItems.filter(
 		(item) => item.public || isAuthenticated,
 	);
+
+	const drawerPrimaryActions = isAuthenticated
+		? [
+				{
+					label: "Ir para a carteira",
+					to: "/dashboard",
+					description: "Abrir o painel financeiro",
+					icon: DashboardIcon,
+					emphasis: true,
+				},
+				{
+					label: "Configurar cards",
+					to: "/ajustes",
+					description: "Escolher os 3 cards do resumo",
+					icon: SettingsIcon,
+					emphasis: false,
+				},
+			]
+		: [
+				{
+					label: "Entrar",
+					to: "/login",
+					description: "Acesse sua conta",
+					icon: AccountCircleIcon,
+					emphasis: true,
+				},
+			];
 
 	const handleNavigation = (path: string) => {
 		navigate(path);
@@ -287,20 +316,18 @@ export function Header() {
 			>
 				{/* Header do menu com info do usuário */}
 				<Box sx={{ px: 2, py: 1.5, pb: 1 }}>
-					<Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+					<Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
 						{user?.name}
 					</Typography>
-					{/* {user?.email && (
-						<Typography variant="caption" sx={{ color: "text.secondary" }}>
-							{user.email}
-						</Typography>
-					)} */}
+					<Typography variant="caption" sx={{ color: "text.secondary" }}>
+						Atalhos da conta
+					</Typography>
 				</Box>
 
 				<Divider sx={{ my: 1 }} />
 
-				{/* Opções do menu */}
-				{/* <MenuItem
+				<MenuItem
+					onClick={() => navigate("/dashboard")}
 					sx={{
 						py: 1.25,
 						px: 2,
@@ -310,31 +337,14 @@ export function Header() {
 					}}
 				>
 					<ListItemIcon>
-						<AccountCircleIcon fontSize="small" />
+						<DashboardIcon fontSize="small" />
 					</ListItemIcon>
 					<ListItemText>
-						<Typography variant="body2">Minha conta</Typography>
+						<Typography variant="body2" sx={{ fontWeight: 600 }}>
+							Abrir carteira
+						</Typography>
 					</ListItemText>
-				</MenuItem> */}
-
-				{/* <MenuItem
-					sx={{
-						py: 1.25,
-						px: 2,
-						"&:hover": {
-							bgcolor: "action.hover",
-						},
-					}}
-				>
-					<ListItemIcon>
-						<SettingsIcon fontSize="small" />
-					</ListItemIcon>
-					<ListItemText>
-						<Typography variant="body2">Configurações</Typography>
-					</ListItemText>
-				</MenuItem> */}
-
-				{/* <Divider sx={{ my: 1 }} /> */}
+				</MenuItem>
 
 				<MenuItem
 					onClick={() => navigate("/ajustes")}
@@ -350,7 +360,9 @@ export function Header() {
 						<SettingsIcon fontSize="small" />
 					</ListItemIcon>
 					<ListItemText>
-						<Typography variant="body2">Ajustes de popups</Typography>
+						<Typography variant="body2" sx={{ fontWeight: 600 }}>
+							Abrir ajustes
+						</Typography>
 					</ListItemText>
 				</MenuItem>
 
@@ -397,9 +409,17 @@ export function Header() {
 							borderColor: "divider",
 						}}
 					>
-						<Typography variant="h6" sx={{ fontWeight: 700 }}>
-							Kado
-						</Typography>
+						<Box>
+							<Typography
+								variant="h6"
+								sx={{ fontWeight: 800, lineHeight: 1.1 }}
+							>
+								Menu
+							</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Atalhos principais do app
+							</Typography>
+						</Box>
 						<IconButton onClick={() => setOpen(false)} aria-label="fechar menu">
 							<CloseIcon />
 						</IconButton>
@@ -410,7 +430,7 @@ export function Header() {
 						<Box
 							sx={{
 								p: 2.5,
-								bgcolor: "primary.main",
+								bgcolor: "#0F172A",
 								color: "white",
 							}}
 						>
@@ -419,17 +439,20 @@ export function Header() {
 									sx={{
 										width: 48,
 										height: 48,
-										bgcolor: "rgba(255, 255, 255, 0.2)",
+										bgcolor: "#2563EB",
 									}}
 								>
 									{initials}
 								</Avatar>
 								<Box>
-									<Typography variant="body2" sx={{ opacity: 0.9, mb: 0.5 }}>
-										Bem-vindo(a)
+									<Typography variant="body2" sx={{ opacity: 0.8, mb: 0.5 }}>
+										Conta conectada
 									</Typography>
-									<Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+									<Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
 										{user?.name}
+									</Typography>
+									<Typography variant="caption" sx={{ opacity: 0.75 }}>
+										Você pode abrir a carteira ou ajustar os cards aqui
 									</Typography>
 								</Box>
 							</Box>
@@ -438,64 +461,110 @@ export function Header() {
 
 					{/* Menu items */}
 					<List sx={{ flex: 1, pt: 1 }}>
+						<ListItem sx={{ px: 2.5, pb: 0.5 }}>
+							<Typography
+								variant="overline"
+								sx={{ fontWeight: 800, color: "text.secondary" }}
+							>
+								Atalhos
+							</Typography>
+						</ListItem>
+						{drawerPrimaryActions.map((item) => {
+							const Icon = item.icon;
+
+							return (
+								<ListItem key={item.label} disablePadding>
+									<ListItemButton
+										onClick={() => handleNavigation(item.to)}
+										sx={{
+											py: 1.5,
+											px: 2.5,
+											mx: 1.5,
+											mb: 0.75,
+											borderRadius: 2,
+											bgcolor: item.emphasis ? "primary.main" : "action.hover",
+											color: item.emphasis
+												? "primary.contrastText"
+												: "text.primary",
+											"&:hover": {
+												bgcolor: item.emphasis
+													? "primary.dark"
+													: "action.selected",
+											},
+										}}
+									>
+										<ListItemIcon
+											sx={{
+												minWidth: 36,
+												color: item.emphasis
+													? "primary.contrastText"
+													: "text.secondary",
+											}}
+										>
+											<Icon />
+										</ListItemIcon>
+										<ListItemText
+											primary={item.label}
+											secondary={item.description}
+											primaryTypographyProps={{
+												fontWeight: 700,
+												fontSize: "0.98rem",
+											}}
+											secondaryTypographyProps={{
+												fontSize: "0.78rem",
+												sx: {
+													color: item.emphasis
+														? "rgba(255,255,255,0.75)"
+														: "text.secondary",
+												},
+											}}
+										/>
+										<ChevronRightIcon
+											fontSize="small"
+											sx={{
+												ml: 1,
+												color: item.emphasis
+													? "primary.contrastText"
+													: "text.secondary",
+											}}
+										/>
+									</ListItemButton>
+								</ListItem>
+							);
+						})}
+
+						<Divider sx={{ my: 1.5, mx: 2 }} />
+
+						<ListItem sx={{ px: 2.5, pb: 0.5 }}>
+							<Typography
+								variant="overline"
+								sx={{ fontWeight: 800, color: "text.secondary" }}
+							>
+								Navegação
+							</Typography>
+						</ListItem>
 						{visibleMenuItems.map((item) => (
 							<ListItem key={item.label} disablePadding>
 								<ListItemButton
 									onClick={() => handleNavigation(item.to)}
 									sx={{
-										py: 1.5,
+										py: 1.35,
 										px: 2.5,
-										"&:hover": {
-											bgcolor: "primary.light",
-											color: "primary.contrastText",
-										},
+										mx: 1.5,
+										mb: 0.5,
+										borderRadius: 2,
 									}}
 								>
 									<ListItemText
 										primary={item.label}
 										primaryTypographyProps={{
 											fontWeight: 500,
-											fontSize: "1rem",
+											fontSize: "0.98rem",
 										}}
 									/>
 								</ListItemButton>
 							</ListItem>
 						))}
-
-						{/* Opções de sessão no mobile */}
-						{isAuthenticated && (
-							<>
-								<Divider sx={{ my: 1 }} />
-								<ListItem disablePadding>
-									<ListItemButton
-										onClick={() => handleNavigation("/ajustes")}
-										sx={{
-											py: 1.5,
-											px: 2.5,
-											"&:hover": {
-												bgcolor: "action.hover",
-											},
-										}}
-									>
-										<ListItemIcon>
-											<SettingsIcon />
-										</ListItemIcon>
-										<ListItemText
-											primary="Ajustes"
-											primaryTypographyProps={{
-												fontWeight: 500,
-												fontSize: "1rem",
-											}}
-										/>
-									</ListItemButton>
-								</ListItem>
-								<ListItem sx={{ px: 2.5, py: 1 }}>
-									<Typography variant="body2" color="text.secondary">
-										Conta conectada: {user?.name}
-									</Typography>
-								</ListItem>
-							</>
-						)}
 					</List>
 
 					<Divider />

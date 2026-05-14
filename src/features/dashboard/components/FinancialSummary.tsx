@@ -1,14 +1,27 @@
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import { Box, Card, CardContent, Skeleton, Typography } from "@mui/material";
+import {
+	Box,
+	Card,
+	CardContent,
+	Skeleton,
+	Stack,
+	Typography,
+} from "@mui/material";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { formatCurrency } from "../../../utils/formatCurrency";
+import {
+	DASHBOARD_SUMMARY_CARD_MAP,
+	DASHBOARD_SUMMARY_CARD_TONES,
+	DEFAULT_DASHBOARD_SUMMARY_CARD_IDS,
+	type SummaryCardDefinition,
+} from "../constants/summaryCards";
+import { useDashboardSummaryCardsQuery } from "../hooks/useDashboardSummaryCards";
 import { useGetSummaryQuery } from "../hooks/useGetSummary";
 
 export function FinancialSummary() {
 	const { data, isPending, isError } = useGetSummaryQuery();
+	const { data: preferenceData, isPending: isPreferencePending } =
+		useDashboardSummaryCardsQuery();
 
 	useEffect(() => {
 		if (isError) {
@@ -16,45 +29,67 @@ export function FinancialSummary() {
 		}
 	}, [isError]);
 
-	const cards = [
-		{
-			id: "receive",
-			icon: TrendingUpIcon,
-			label: "Total recebido",
-			value: data?.total_receive,
-			color: "#10b981",
-			bgColor: "#ecfdf5",
-		},
-		{
-			id: "expense",
-			icon: TrendingDownIcon,
-			label: "Total gasto",
-			value: data?.total_expense,
-			color: "#ef4444",
-			bgColor: "#fef2f2",
-		},
-		{
-			id: "balance",
-			icon: AccountBalanceWalletIcon,
-			label: "Saldo esperado",
-			value: data?.expected_total,
-			color: "#3b82f6",
-			bgColor: "#eff6ff",
-		},
-	];
+	const selectedCardIds =
+		preferenceData?.card_ids ?? DEFAULT_DASHBOARD_SUMMARY_CARD_IDS;
+	const cards = selectedCardIds.map(
+		(cardId) => DASHBOARD_SUMMARY_CARD_MAP[cardId],
+	);
+
+	const getCardValue = (card: SummaryCardDefinition) => {
+		const value = data?.[card.valueKey];
+
+		return typeof value === "number" ? value : 0;
+	};
+
+	const getCardTone = (card: SummaryCardDefinition, value: number) => {
+		if (
+			(card.id === "current_balance" ||
+				card.id === "expected_total" ||
+				card.id === "final_balance") &&
+			value < 100
+		) {
+			return {
+				color: "#ef4444",
+				bgColor: "#fef2f2",
+			};
+		}
+
+		if (
+			[
+				"total_expense",
+				"total_expense_30_days",
+				"expected_expenses",
+				"total_expense_pending",
+				"spent_today",
+				"spent_month",
+			].includes(card.id) &&
+			value >= 5_000_000
+		) {
+			return {
+				color: "#ef4444",
+				bgColor: "#fef2f2",
+			};
+		}
+
+		return DASHBOARD_SUMMARY_CARD_TONES[card.tone];
+	};
 
 	return (
 		<Box sx={{ mb: 4 }}>
-			<Typography
-				variant="h4"
-				sx={{
-					fontWeight: 700,
-					fontSize: { xs: "1.75rem", md: "2.125rem" },
-					mb: 0.5,
-				}}
-			>
-				Resumo Financeiro
-			</Typography>
+			<Stack spacing={0.5} sx={{ mb: 2 }}>
+				<Typography
+					variant="h4"
+					sx={{
+						fontWeight: 700,
+						fontSize: { xs: "1.75rem", md: "2.125rem" },
+					}}
+				>
+					Resumo Financeiro
+				</Typography>
+				<Typography color="text.secondary">
+					Você pode escolher quais 3 indicadores quer acompanhar no painel.
+				</Typography>
+			</Stack>
 
 			<Box
 				sx={{
@@ -69,11 +104,9 @@ export function FinancialSummary() {
 			>
 				{cards.map((card) => {
 					const Icon = card.icon;
-					const isPositive = card.id === "receive";
-					const isNegative = card.id === "expense";
-					const displayValue = card.value ?? 0;
-					const isBalancePositive = card.id === "balance" && displayValue >= 0;
-					const isBalanceNegative = card.id === "balance" && displayValue < 0;
+					const displayValue = getCardValue(card);
+					const tone = getCardTone(card, displayValue);
+					const isLoading = isPending || isPreferencePending;
 
 					return (
 						<Card
@@ -84,9 +117,9 @@ export function FinancialSummary() {
 								borderColor: "divider",
 								transition: "all 0.2s ease-in-out",
 								"&:hover": {
-									borderColor: card.color,
+									borderColor: tone.color,
 									transform: "translateY(-2px)",
-									boxShadow: `0 4px 12px ${card.color}20`,
+									boxShadow: `0 4px 12px ${tone.color}20`,
 								},
 							}}
 						>
@@ -114,7 +147,7 @@ export function FinancialSummary() {
 											width: 36,
 											height: 36,
 											borderRadius: "8px",
-											bgcolor: card.bgColor,
+											bgcolor: tone.bgColor,
 											display: "flex",
 											alignItems: "center",
 											justifyContent: "center",
@@ -123,13 +156,13 @@ export function FinancialSummary() {
 										<Icon
 											sx={{
 												fontSize: 20,
-												color: card.color,
+												color: tone.color,
 											}}
 										/>
 									</Box>
 								</Box>
 
-								{isPending ? (
+								{isLoading ? (
 									<Skeleton
 										variant="text"
 										width="80%"
@@ -141,12 +174,7 @@ export function FinancialSummary() {
 										variant="h5"
 										sx={{
 											fontWeight: 700,
-											color:
-												isPositive || isBalancePositive
-													? "#10b981"
-													: isNegative || isBalanceNegative
-														? "#ef4444"
-														: "text.primary",
+											color: tone.color,
 											fontSize: { xs: "1.5rem", sm: "1.75rem" },
 											letterSpacing: "-0.02em",
 										}}

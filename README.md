@@ -1,255 +1,100 @@
-# Kado
+# Kado-to Web
 
-> Gerenciamento de gastos pessoais simples e eficiente
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white)
+![MUI](https://img.shields.io/badge/MUI-7-007FFF?style=flat-square&logo=mui&logoColor=white)
+![Biome](https://img.shields.io/badge/Biome-2-60A5FA?style=flat-square)
 
-[![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-5+-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-3+-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-
----
-
-## 📖 Sobre o Projeto
-
-**Kado** é uma aplicação web moderna para gerenciamento de gastos pessoais que te ajuda a ter controle total sobre suas finanças. Com uma interface limpa e intuitiva, você pode facilmente registrar entradas e saídas, visualizar estatísticas e entender para onde está indo seu dinheiro.
-
-### 🎯 Problema Resolvido
-
-Facilita o gerenciamento de entradas e saídas financeiras de forma simples e visual, permitindo que você:
-
-- 📊 Visualize seus gastos de forma clara
-- 💵 Acompanhe seu saldo esperado
-- 📈 Entenda seus padrões de consumo
-- 🎯 Tome decisões financeiras mais conscientes
+Frontend do [Kado](https://kado-tan.vercel.app/dashboard) — um sistema de controle financeiro pessoal para registrar lançamentos, organizar gastos e acompanhar faturas de cartão de crédito.
 
 ---
 
-## ✨ Principais Funcionalidades
+## Sobre o projeto
 
-| Funcionalidade | Descrição | Status |
-|----------------|-----------|--------|
-| 🔐 **Autenticação** | Sistema completo de login e registro | ✅ Pronto |
-| 📝 **Registros** | Criação de entradas e saídas financeiras | ✅ Pronto |
-| 📋 **Listagem em Cards** | Visualização organizada de transações | ✅ Pronto |
-| 📊 **Estatísticas** | Gastos totais, entradas e saldo final esperado | ✅ Pronto |
-| 📤 **Exportação** | Download de dados em planilha | 🚧 Em desenvolvimento |
-| 🔍 **Filtros** | Busca e filtro de registros | 📅 Planejado |
-| ✏️ **Edição** | Modificar registros existentes | 📅 Planejado |
+O Kado nasceu de uma necessidade simples: ter clareza sobre pra onde o dinheiro vai. Esta aplicação é a camada web do projeto, responsável por traduzir a lógica da API em uma experiência de uso direta, com navegação pública, autenticação, dashboard e área de configurações.
+
+O backend que sustenta as regras de negócio está disponível em [kado.backend](https://github.com/joao-ramajo/kado-to), e a versão publicada da interface pode ser acessada em [kado-tan.vercel.app](https://kado-tan.vercel.app/dashboard).
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Arquitetura
 
-### Core Stack
+O frontend foi organizado por domínio para manter responsabilidades bem separadas e facilitar evolução incremental. A aplicação combina roteamento, estado assíncrono e contexto de autenticação sem concentrar toda a lógica na árvore principal.
 
-- **[React 18+](https://reactjs.org)** - Biblioteca para interfaces de usuário
-- **[TypeScript](https://www.typescriptlang.org)** - JavaScript com tipagem estática
-- **[Vite](https://vitejs.dev)** - Build tool ultra-rápido
-- **[TailwindCSS](https://tailwindcss.com)** - Framework CSS utilitário
+- **Features** — agrupam páginas, componentes, hooks, schemas e contexto por domínio
+- **Router** — controla rotas públicas e privadas da aplicação
+- **API layer** — centraliza a configuração do cliente HTTP e a comunicação com o backend
+- **Providers** — inicializam autenticação, cache de queries e notificações globais
 
-### Bibliotecas Principais
+### Módulos principais
 
-- **[TanStack Query](https://tanstack.com/query)** - Gerenciamento de estado assíncrono
-- **[React Router](https://reactrouter.com)** - Roteamento de páginas
-- **[React Hook Form](https://react-hook-form.com)** - Gerenciamento de formulários
-- **[Zod](https://zod.dev)** - Validação de schemas TypeScript-first
-- **[Material-UI](https://mui.com)** - Componentes React prontos
-
-### Ferramentas de Desenvolvimento
-
-- **[Biome](https://biomejs.dev)** - Linter e formatter moderno
-- **[Vercel](https://vercel.com)** - Hospedagem e deploy
+| Módulo | Responsabilidade |
+|---|---|
+| `Auth` | Login, cadastro, persistência de sessão e proteção de rotas |
+| `Dashboard` | Visualização principal da área autenticada e dados financeiros |
+| `Landing` | Páginas públicas como entrada, home, guia, termos e recursos |
+| `Settings` | Ajustes da conta e preferências da aplicação |
+| `Components` | Layout base e componentes reutilizáveis de interface e formulários |
 
 ---
 
-## 🚀 Como Começar
+## Stack
 
-### Pré-requisitos
+**Runtime:** Node.js 18+ · React 19 · TypeScript 5 · Vite 7
 
-- [Node.js](https://nodejs.org) (versão 18 ou superior)
-- [npm](https://www.npmjs.com) ou [yarn](https://yarnpkg.com)
+**UI:** Material UI 7 · Tailwind CSS 4 · React Hot Toast
 
-### Instalação
+**Dados e formulários:** Axios · TanStack Query · React Hook Form · Zod · Day.js
 
-1. **Clone o repositório**
+**Qualidade:** Biome
 
-```bash
-git clone https://github.com/seu-usuario/kado.git
-cd kado
-```
+**Deploy:** Vercel
 
-1. **Instale as dependências**
+---
+
+## Rodando localmente
+
+**Pré-requisitos:** Node.js 18+ e npm
 
 ```bash
 npm install
 ```
 
-1. **Configure as variáveis de ambiente**
-
-Crie um arquivo `.env` na raiz do projeto:
+Crie um arquivo `.env` na raiz do projeto e configure a URL da API:
 
 ```env
-VITE_API_URL=<url_da_sua_api>
+VITE_API_URL=http://localhost
 ```
 
-1. **Inicie o servidor de desenvolvimento**
+Suba a aplicação:
 
 ```bash
 npm run dev
 ```
 
-1. **Acesse a aplicação**
-
-```
-http://localhost:5173
-```
-
-### Comandos Disponíveis
+O frontend ficará disponível em `http://localhost:5173`.
 
 ```bash
-# Desenvolvimento
-npm run dev              # Inicia servidor de desenvolvimento
-
-# Qualidade de Código
-npm run lint             # Verifica código com Biome
-npm run lint:fix         # Corrige problemas automaticamente
-
-# Build
-npm run build            # Gera build de produção
-npm run preview          # Preview do build de produção
+npm run build    # valida TypeScript e gera o bundle de produção
+npm run lint     # checa o código com Biome
+npm run lint:fix # aplica correções automáticas do Biome
+npm run preview  # serve o build localmente
 ```
 
----
+Se quiser iniciar o workspace completo com frontend e backend juntos, use o script na raiz do projeto:
 
-## 💡 Como Usar
-
-### Fluxo Típico de Uso
-
-1. **Cadastre-se ou faça login** na aplicação
-2. **Crie um novo registro** de entrada ou saída
-   - Informe o valor
-   - Adicione uma descrição
-   - Selecione a categoria
-3. **Visualize suas estatísticas**
-   - Gastos totais
-   - Entradas previstas
-   - Saldo final esperado
-4. **Acompanhe seus registros** na lista de cards
-
-### Exemplo: Cadastrando um Gasto Diário
-
-```
-💸 Novo Registro
-├─ Tipo: Saída
-├─ Valor: R$ 45,00
-├─ Descrição: Almoço
-└─ Categoria: Alimentação
-
-📊 Impacto no Saldo
-├─ Saldo Anterior: R$ 1.500,00
-├─ Após Registro: R$ 1.455,00
-└─ Meta Mensal: R$ 2.000,00
+```bash
+cd ..
+./start-dev.sh
 ```
 
----
+## Licença e uso
 
-## 🎨 Design
+Este projeto é público para fins de transparência, demonstração técnica e colaboração.
 
-O projeto segue um **design flat** com componentes Material-UI, priorizando:
+O código-fonte é de direito restrito. Você pode visualizar o repositório, estudar a estrutura do projeto e propor melhorias por meio de issues ou pull requests.
 
-- 🎯 Clareza visual
-- 📱 Responsividade
-- ⚡ Performance
-- 🧩 Consistência de interface
+No entanto, não é permitido copiar, redistribuir, vender, republicar, usar comercialmente ou criar produtos derivados a partir deste código sem autorização prévia do autor.
 
----
-
-## 📈 Status do Projeto
-
-**Status Atual**: ✅ MVP Funcional
-
-### Funcionalidades Implementadas
-
-- ✅ Sistema de autenticação (login/registro)
-- ✅ CRUD de registros financeiros
-- ✅ Dashboard com estatísticas básicas
-- ✅ Listagem visual em cards
-- ✅ Integração com API própria
-
-### 🗺️ Roadmap
-
-**Próximas Melhorias:**
-
-**Design & UX**
-
-- [ ] Redesign da interface para maior atratividade
-- [ ] Tema dark mode
-- [ ] Animações e micro-interações
-
-**Funcionalidades**
-
-- [ ] Sistema de filtros avançados
-- [ ] Edição de registros existentes
-- [ ] Categorização personalizada
-- [ ] Gráficos interativos
-- [ ] Relatórios mensais/anuais
-- [ ] Metas e alertas de gastos
-
-**Exportação de Dados**
-
-- [ ] Finalizar exportação em planilha
-- [ ] Múltiplos formatos (CSV, Excel, PDF)
-- [ ] Agendamento de relatórios
-
----
-
-## 🤝 Contribuições
-
-No momento, o projeto **não está aceitando contribuições externas**, pois é um projeto de uso pessoal em desenvolvimento ativo.
-
-### Reportar Bugs ou Sugestões
-
-Encontrou um problema ou tem uma sugestão?
-
-1. 📧 **Entre em contato** diretamente
-2. 🐛 **Abra uma issue** no GitHub descrevendo:
-   - O problema encontrado
-   - Passos para reproduzir
-   - Comportamento esperado
-   - Screenshots (se aplicável)
-
----
-
-## 🏗️ Estrutura do Projeto
-
-```
-kado/
-├── src/
-│   ├── features/           # Funcionalidades por domínio
-│   │   ├── auth/          # Autenticação
-│   │   ├── transactions/  # Gestão de transações
-│   │   └── dashboard/     # Dashboard e estatísticas
-│   ├── shared/            # Recursos compartilhados
-│   │   ├── components/    # Componentes reutilizáveis
-│   │   ├── hooks/         # Custom hooks
-│   │   └── utils/         # Utilitários
-│   ├── useCases/          # Lógica de negócio
-│   │   ├── mutations/     # TanStack Query mutations
-│   │   └── queries/       # TanStack Query queries
-│   ├── App.tsx
-│   └── main.tsx
-├── public/
-├── .env
-├── vite.config.ts
-├── tailwind.config.js
-└── package.json
-```
-
-## 🔗 Links Úteis
-
-- **Documentação React**: [https://react.dev](https://react.dev)
-- **TanStack Query**: [https://tanstack.com/query](https://tanstack.com/query)
-- **Material-UI**: [https://mui.com](https://mui.com)
-- **Biome**: [https://biomejs.dev](https://biomejs.dev)
-
----
+Pull requests são bem-vindos, desde que estejam alinhados com o objetivo do projeto. Ao contribuir, você concorda que sua contribuição poderá ser incorporada ao projeto sob os mesmos termos de uso deste repositório.

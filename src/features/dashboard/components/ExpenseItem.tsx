@@ -19,11 +19,13 @@ import {
 	useTheme,
 } from "@mui/material";
 import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { useExpenseModalContext } from "../context/ExpenseModalContextProvider";
 import { useDeleteExpenseMutation } from "../hooks/useDeleteExpenseMutation";
 import type { Expense } from "../hooks/useGetExpense";
 import { useMarkExpenseAsPaidMutation } from "../hooks/useMarkExpenseAsPaidMutation";
+import { DeleteExpenseDialog } from "./DeleteExpenseDialog";
 import { ExpenseItemSkeleton } from "./ExpenseItemSkeleton";
 
 type ExpenseItemProps = {
@@ -53,6 +55,7 @@ const statusConfig = {
 };
 
 export function ExpenseItem({ expense }: ExpenseItemProps) {
+	const deleteTimeoutRef = useRef<number | null>(null);
 	const status = statusConfig[expense.status];
 	const isIncome = expense.type === "income";
 	const isInvoicePayment = expense.occurrence_type === "invoice_payment";
@@ -74,124 +77,126 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 	const { selectAction } = useExpenseModalContext();
 	const { mutateAsync: markPaid, isPending: markAsPaidIsLoading } =
 		useMarkExpenseAsPaidMutation();
-	const { mutateAsync: deleteExpense, isPending: deleteExpenseIsLoading } =
-		useDeleteExpenseMutation();
+	const { mutate: deleteExpense } = useDeleteExpenseMutation();
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
-	if (markAsPaidIsLoading || deleteExpenseIsLoading) {
+	useEffect(() => {
+		return () => {
+			if (deleteTimeoutRef.current !== null) {
+				window.clearTimeout(deleteTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	if (markAsPaidIsLoading) {
 		return <ExpenseItemSkeleton />;
 	}
 
-	return (
-		<BodyCard>
-			<Box
-				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					mb: 1,
-				}}
-			>
-				<Typography
-					variant="subtitle1"
-					fontWeight={600}
-					sx={{
-						mb: 0.5,
-						overflow: "hidden",
-						textOverflow: "ellipsis",
-						whiteSpace: "nowrap",
-						fontSize: { xs: "1rem", sm: "1.05rem" },
-					}}
-				>
-					{expense.title}
-				</Typography>
-				<Stack
-					direction="row"
-					spacing={1}
-					sx={{
-						bgcolor: "#F8FAFC",
-						borderRadius: 2,
-						px: 1,
-						border: "1px solid #E5E7EB",
-					}}
-				>
-					<Tooltip
-						title={
-							isLockedFromEdit
-								? "Este registro é controlado pela fatura."
-								: "Editar"
-						}
-					>
-						<IconButton
-							size="small"
-							onClick={() => !isLockedFromEdit && selectAction("edit", expense)}
-							disabled={isLockedFromEdit}
-						>
-							<Edit fontSize="small" />
-						</IconButton>
-					</Tooltip>
+	const handleDeleteConfirm = () => {
+		setIsDeleteDialogOpen(false);
+		setIsDeleting(true);
 
-					{expense.status !== "paid" && !isLockedFromCommonActions && (
-						<Tooltip title="Marcar como pago">
+		deleteTimeoutRef.current = window.setTimeout(() => {
+			deleteExpense({ id: expense.id });
+		}, 180);
+	};
+
+	return (
+		<>
+			<BodyCard isExiting={isDeleting}>
+				<Box
+					sx={{
+						display: "flex",
+						justifyContent: "space-between",
+						mb: 1,
+					}}
+				>
+					<Typography
+						variant="subtitle1"
+						fontWeight={600}
+						sx={{
+							mb: 0.5,
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							whiteSpace: "nowrap",
+							fontSize: { xs: "1rem", sm: "1.05rem" },
+						}}
+					>
+						{expense.title}
+					</Typography>
+					<Stack
+						direction="row"
+						spacing={1}
+						sx={{
+							bgcolor: "#F8FAFC",
+							borderRadius: 2,
+							px: 1,
+							border: "1px solid #E5E7EB",
+						}}
+					>
+						<Tooltip
+							title={
+								isLockedFromEdit
+									? "Este registro é controlado pela fatura."
+									: "Editar"
+							}
+						>
 							<IconButton
 								size="small"
-								onClick={() => markPaid({ id: expense.id })}
+								onClick={() =>
+									!isLockedFromEdit && selectAction("edit", expense)
+								}
+								disabled={isLockedFromEdit || isDeleting}
 							>
-								<AttachMoney fontSize="small" />
+								<Edit fontSize="small" />
 							</IconButton>
 						</Tooltip>
-					)}
 
-					<Tooltip
-						title={
-							isLockedFromCommonActions
-								? "Este registro é controlado pela fatura."
-								: "Excluir"
-						}
-					>
-						<IconButton
-							size="small"
-							color="error"
-							onClick={() =>
-								!isLockedFromCommonActions && deleteExpense({ id: expense.id })
+						{expense.status !== "paid" && !isLockedFromCommonActions && (
+							<Tooltip title="Marcar como pago">
+								<IconButton
+									size="small"
+									onClick={() => markPaid({ id: expense.id })}
+									disabled={isDeleting}
+								>
+									<AttachMoney fontSize="small" />
+								</IconButton>
+							</Tooltip>
+						)}
+
+						<Tooltip
+							title={
+								isLockedFromCommonActions
+									? "Este registro é controlado pela fatura."
+									: "Excluir"
 							}
-							disabled={isLockedFromCommonActions}
 						>
-							<Delete fontSize="small" />
-						</IconButton>
-					</Tooltip>
-				</Stack>
-			</Box>
-			<Box
-				display="flex"
-				flexDirection={{ xs: "column", sm: "row" }}
-				gap={{ xs: 2, sm: 3 }}
-				alignItems={{ xs: "stretch", sm: "center" }}
-			>
-				{/* Seção Principal - Categoria e Fonte */}
-				<Box flex={1} minWidth={0}>
-					<Stack spacing={0.5}>
-						{/* Categoria */}
-						<Box display="flex" alignItems="center" gap={0.5}>
-							<CategoryIcon
-								sx={{
-									fontSize: 16,
-									color: "text.secondary",
-								}}
-							/>
-							<Typography
-								variant="caption"
-								color="text.secondary"
-								sx={{
-									fontSize: "0.85rem",
-								}}
+							<IconButton
+								size="small"
+								color="error"
+								onClick={() =>
+									!isLockedFromCommonActions && setIsDeleteDialogOpen(true)
+								}
+								disabled={isLockedFromCommonActions || isDeleting}
 							>
-								{expense.category ?? "Sem categoria"}
-							</Typography>
-						</Box>
-
-						{/* Fonte */}
-						{expense.source_name && (
+								<Delete fontSize="small" />
+							</IconButton>
+						</Tooltip>
+					</Stack>
+				</Box>
+				<Box
+					display="flex"
+					flexDirection={{ xs: "column", sm: "row" }}
+					gap={{ xs: 2, sm: 3 }}
+					alignItems={{ xs: "stretch", sm: "center" }}
+				>
+					{/* Seção Principal - Categoria e Fonte */}
+					<Box flex={1} minWidth={0}>
+						<Stack spacing={0.5}>
+							{/* Categoria */}
 							<Box display="flex" alignItems="center" gap={0.5}>
-								<AccountBalanceWallet
+								<CategoryIcon
 									sx={{
 										fontSize: 16,
 										color: "text.secondary",
@@ -204,145 +209,172 @@ export function ExpenseItem({ expense }: ExpenseItemProps) {
 										fontSize: "0.85rem",
 									}}
 								>
-									{expense.source_name}
+									{expense.category ?? "Sem categoria"}
 								</Typography>
+							</Box>
+
+							{/* Fonte */}
+							{expense.source_name && (
+								<Box display="flex" alignItems="center" gap={0.5}>
+									<AccountBalanceWallet
+										sx={{
+											fontSize: 16,
+											color: "text.secondary",
+										}}
+									/>
+									<Typography
+										variant="caption"
+										color="text.secondary"
+										sx={{
+											fontSize: "0.85rem",
+										}}
+									>
+										{expense.source_name}
+									</Typography>
+								</Box>
+							)}
+
+							{expense.installment_total && expense.installment_number && (
+								<Chip
+									label={`${expense.installment_number}/${expense.installment_total}`}
+									size="small"
+									sx={{ width: "fit-content", mt: 0.5 }}
+								/>
+							)}
+
+							{isInvoicePayment && (
+								<Chip
+									label="Pagamento de fatura"
+									size="small"
+									color="primary"
+									sx={{ width: "fit-content", mt: 0.5 }}
+								/>
+							)}
+						</Stack>
+					</Box>
+
+					{/* Seção de Datas - Mobile: horizontal, Desktop: vertical */}
+					<Box
+						sx={{
+							display: "flex",
+							flexDirection: { xs: "row", sm: "column" },
+							gap: { xs: 2, sm: 0.5 },
+							justifyContent: { xs: "space-between", sm: "flex-start" },
+							minWidth: { sm: 140 },
+						}}
+					>
+						{/* Data de Pagamento */}
+						{expense.payment_date && (
+							<Box display="flex" alignItems="center" gap={0.75}>
+								<CheckCircle
+									sx={{
+										fontSize: 16,
+										color: "success.main",
+									}}
+								/>
+								<Box>
+									<Typography
+										variant="caption"
+										sx={{
+											display: "block",
+											fontSize: "0.7rem",
+											color: "text.secondary",
+											lineHeight: 1.2,
+										}}
+									>
+										Pago em
+									</Typography>
+									<Typography
+										variant="body2"
+										sx={{
+											fontSize: "0.85rem",
+											fontWeight: 500,
+											color: "success.main",
+										}}
+									>
+										{formatDate(expense.payment_date)}
+									</Typography>
+								</Box>
 							</Box>
 						)}
 
-						{expense.installment_total && expense.installment_number && (
-							<Chip
-								label={`${expense.installment_number}/${expense.installment_total}`}
-								size="small"
-								sx={{ width: "fit-content", mt: 0.5 }}
-							/>
-						)}
-
-						{isInvoicePayment && (
-							<Chip
-								label="Pagamento de fatura"
-								size="small"
-								color="primary"
-								sx={{ width: "fit-content", mt: 0.5 }}
-							/>
-						)}
-					</Stack>
-				</Box>
-
-				{/* Seção de Datas - Mobile: horizontal, Desktop: vertical */}
-				<Box
-					sx={{
-						display: "flex",
-						flexDirection: { xs: "row", sm: "column" },
-						gap: { xs: 2, sm: 0.5 },
-						justifyContent: { xs: "space-between", sm: "flex-start" },
-						minWidth: { sm: 140 },
-					}}
-				>
-					{/* Data de Pagamento */}
-					{expense.payment_date && (
-						<Box display="flex" alignItems="center" gap={0.75}>
-							<CheckCircle
-								sx={{
-									fontSize: 16,
-									color: "success.main",
-								}}
-							/>
-							<Box>
-								<Typography
-									variant="caption"
+						{/* Indicador de pendente (sem data de pagamento) */}
+						{!expense.payment_date && expense.status === "pending" && (
+							<Box
+								display="flex"
+								alignItems="center"
+								gap={0.75}
+								sx={{ display: { xs: "none", sm: "flex" } }}
+							>
+								<Schedule
 									sx={{
-										display: "block",
-										fontSize: "0.7rem",
-										color: "text.secondary",
-										lineHeight: 1.2,
+										fontSize: 16,
+										color: "warning.main",
 									}}
-								>
-									Pago em
-								</Typography>
+								/>
 								<Typography
 									variant="body2"
 									sx={{
 										fontSize: "0.85rem",
-										fontWeight: 500,
-										color: "success.main",
+										color: "warning.main",
 									}}
 								>
-									{formatDate(expense.payment_date)}
+									Aguardando pagamento
 								</Typography>
 							</Box>
-						</Box>
-					)}
+						)}
+					</Box>
 
-					{/* Indicador de pendente (sem data de pagamento) */}
-					{!expense.payment_date && expense.status === "pending" && (
-						<Box
-							display="flex"
-							alignItems="center"
-							gap={0.75}
-							sx={{ display: { xs: "none", sm: "flex" } }}
-						>
-							<Schedule
-								sx={{
-									fontSize: 16,
-									color: "warning.main",
-								}}
-							/>
-							<Typography
-								variant="body2"
-								sx={{
-									fontSize: "0.85rem",
-									color: "warning.main",
-								}}
-							>
-								Aguardando pagamento
-							</Typography>
-						</Box>
-					)}
-				</Box>
-
-				{/* Valor e Status */}
-				<Box
-					sx={{
-						display: "flex",
-						flexDirection: { xs: "row", sm: "column" },
-						alignItems: { xs: "center", sm: "flex-end" },
-						justifyContent: { xs: "space-between", sm: "flex-start" },
-						gap: 1.5,
-						minWidth: { sm: 140 },
-					}}
-				>
-					{/* Valor */}
-					<Typography
-						variant="h6"
+					{/* Valor e Status */}
+					<Box
 						sx={{
-							fontWeight: 700,
-							fontSize: { xs: "1.15rem", sm: "1.25rem" },
-							color: isIncome ? "success.main" : "text.primary",
-							lineHeight: 1,
+							display: "flex",
+							flexDirection: { xs: "row", sm: "column" },
+							alignItems: { xs: "center", sm: "flex-end" },
+							justifyContent: { xs: "space-between", sm: "flex-start" },
+							gap: 1.5,
+							minWidth: { sm: 140 },
 						}}
 					>
-						{isIncome ? "+" : "-"} {formatCurrency(expense.amount)}
-					</Typography>
+						{/* Valor */}
+						<Typography
+							variant="h6"
+							sx={{
+								fontWeight: 700,
+								fontSize: { xs: "1.15rem", sm: "1.25rem" },
+								color: isIncome ? "success.main" : "text.primary",
+								lineHeight: 1,
+							}}
+						>
+							{isIncome ? "+" : "-"} {formatCurrency(expense.amount)}
+						</Typography>
 
-					{/* Chip de Status */}
-					<Chip
-						label={status.label}
-						size="small"
-						sx={{
-							fontWeight: 600,
-							fontSize: "0.75rem",
-							height: 24,
-							bgcolor: status.bgColor,
-							color: status.textColor,
-							border: "none",
-							"& .MuiChip-label": {
-								px: 1.5,
-							},
-						}}
-					/>
+						{/* Chip de Status */}
+						<Chip
+							label={status.label}
+							size="small"
+							sx={{
+								fontWeight: 600,
+								fontSize: "0.75rem",
+								height: 24,
+								bgcolor: status.bgColor,
+								color: status.textColor,
+								border: "none",
+								"& .MuiChip-label": {
+									px: 1.5,
+								},
+							}}
+						/>
+					</Box>
 				</Box>
-			</Box>
-		</BodyCard>
+			</BodyCard>
+			<DeleteExpenseDialog
+				open={isDeleteDialogOpen}
+				expense={isDeleteDialogOpen ? expense : null}
+				onClose={() => setIsDeleteDialogOpen(false)}
+				onConfirm={handleDeleteConfirm}
+			/>
+		</>
 	);
 }
 
@@ -353,6 +385,7 @@ type BodyCardProps = {
 
 	isIncome?: boolean; // define cor (income vs expense)
 	status?: "paid" | "pending"; // usado no before
+	isExiting?: boolean;
 };
 
 const BodyCard = ({
@@ -360,6 +393,7 @@ const BodyCard = ({
 	onClick,
 	isIncome = false,
 	status = "paid",
+	isExiting = false,
 }: BodyCardProps) => {
 	const theme = useTheme();
 	return (
@@ -371,10 +405,15 @@ const BodyCard = ({
 				border: "1px solid",
 				borderColor: "divider",
 				borderRadius: 2,
-				transition: "all 0.2s ease-in-out",
-				cursor: onClick ? "pointer" : "default",
+				transition:
+					"opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out",
+				cursor: onClick && !isExiting ? "pointer" : "default",
 				position: "relative",
 				overflow: "hidden",
+				opacity: isExiting ? 0.4 : 1,
+				transform: isExiting ? "scale(0.985) translateY(-4px)" : "none",
+				filter: isExiting ? "blur(1px)" : "none",
+				pointerEvents: isExiting ? "none" : "auto",
 				"&:hover": onClick
 					? {
 							borderColor: isIncome ? "success.main" : "primary.main",

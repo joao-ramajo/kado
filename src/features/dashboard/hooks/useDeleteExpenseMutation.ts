@@ -13,7 +13,7 @@ type DeleteExpenseFormData = {
 };
 
 type DeleteContext = {
-	previousExpenses?: Expense[];
+	previousExpenses: Array<[readonly unknown[], Expense[] | undefined]>;
 };
 
 export const deleteExpense = async (data: DeleteExpenseFormData) => {
@@ -35,13 +35,15 @@ export function useDeleteExpenseMutation() {
 		onMutate: async ({ id }) => {
 			await queryClient.cancelQueries({ queryKey: ["dashboard-expenses"] });
 
-			const previousExpenses = queryClient.getQueryData<Expense[]>([
-				"dashboard-expenses",
-			]);
+			const previousExpenses = queryClient.getQueriesData<Expense[]>({
+				queryKey: ["dashboard-expenses"],
+			});
 
-			queryClient.setQueryData<Expense[]>(["dashboard-expenses"], (old) =>
-				old?.filter((e) => e.id !== id),
-			);
+			for (const [queryKey] of previousExpenses) {
+				queryClient.setQueryData<Expense[]>(queryKey, (old) =>
+					old?.filter((expense) => expense.id !== id),
+				);
+			}
 
 			return { previousExpenses };
 		},
@@ -50,11 +52,10 @@ export function useDeleteExpenseMutation() {
 		},
 
 		onError: (error, _vars, context) => {
-			if (context?.previousExpenses) {
-				queryClient.setQueryData(
-					["dashboard-expenses"],
-					context.previousExpenses,
-				);
+			if (context?.previousExpenses.length) {
+				for (const [queryKey, previousExpenses] of context.previousExpenses) {
+					queryClient.setQueryData(queryKey, previousExpenses);
+				}
 			}
 
 			const status = error.response?.status;

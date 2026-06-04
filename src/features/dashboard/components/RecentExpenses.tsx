@@ -2,8 +2,12 @@ import { InboxOutlined, Search } from "@mui/icons-material";
 import {
 	Box,
 	Button,
+	FormControl,
 	InputAdornment,
+	InputLabel,
+	MenuItem,
 	Paper,
+	Select,
 	Stack,
 	TextField,
 	Typography,
@@ -14,7 +18,9 @@ import { useSearchParams } from "react-router-dom";
 import { instance } from "../../../api/instance";
 import { useDownloadExpensesCsv } from "../hooks/useDownloadExpensesCsv";
 import { downloadExpensesXlsx } from "../hooks/useDownloadExpensesXlsx";
+import { useGetCategoryListQuery } from "../hooks/useGetCategoryListQuery";
 import { type Expense, useGetExpensesQuery } from "../hooks/useGetExpense";
+import { useGetSourceQuery } from "../hooks/useGetSourceListQuery";
 import { ErrorState } from "./ErrorState";
 import { ExpenseItem } from "./ExpenseItem";
 import { ExpenseItemSkeleton } from "./ExpenseItemSkeleton";
@@ -71,8 +77,27 @@ export function RecentExpenses() {
 	const [isImporting, setIsImporting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+	const parseOptionalNumberParam = (value: string | null) => {
+		if (!value) {
+			return undefined;
+		}
+
+		const parsedValue = Number(value);
+
+		return Number.isNaN(parsedValue) ? undefined : parsedValue;
+	};
+
 	const statusFilter =
 		(searchParams.get("status") as "all" | "paid" | "pending") ?? "all";
+	const selectedCategoryId = parseOptionalNumberParam(
+		searchParams.get("category_id"),
+	);
+	const selectedSourceId = parseOptionalNumberParam(
+		searchParams.get("source_id"),
+	);
+
+	const { data: categories = [] } = useGetCategoryListQuery();
+	const { data: sources = [] } = useGetSourceQuery();
 
 	const handleStatusChange = (value: "all" | "paid" | "pending") => {
 		setSearchParams((prev) => {
@@ -81,6 +106,31 @@ export function RecentExpenses() {
 			return params;
 		});
 	};
+
+	const handleCategoryChange = (value: number | "") => {
+		setSearchParams((prev) => {
+			const params = new URLSearchParams(prev);
+			if (value === "") {
+				params.delete("category_id");
+			} else {
+				params.set("category_id", String(value));
+			}
+			return params;
+		});
+	};
+
+	const handleSourceChange = (value: number | "") => {
+		setSearchParams((prev) => {
+			const params = new URLSearchParams(prev);
+			if (value === "") {
+				params.delete("source_id");
+			} else {
+				params.set("source_id", String(value));
+			}
+			return params;
+		});
+	};
+
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			setDebouncedQuery(queryInput.trim());
@@ -92,6 +142,9 @@ export function RecentExpenses() {
 	const { data, isLoading, isError, refetch } = useGetExpensesQuery(
 		statusFilter,
 		debouncedQuery,
+		selectedCategoryId,
+		undefined,
+		selectedSourceId,
 	);
 	const hasData = !!data?.length;
 	const total = data ? data.length : 0;
@@ -144,6 +197,49 @@ export function RecentExpenses() {
 				value={statusFilter}
 				onChange={handleStatusChange}
 			/>
+			<Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mt: 2 }}>
+				<FormControl fullWidth>
+					<InputLabel id="expense-category-filter-label">Categoria</InputLabel>
+					<Select
+						labelId="expense-category-filter-label"
+						label="Categoria"
+						value={selectedCategoryId ?? ""}
+						onChange={(event) =>
+							handleCategoryChange(
+								event.target.value === "" ? "" : Number(event.target.value),
+							)
+						}
+					>
+						<MenuItem value="">Todas</MenuItem>
+						{categories.map((category) => (
+							<MenuItem key={category.id} value={category.id}>
+								{category.name}
+							</MenuItem>
+						))}
+					</Select>
+				</FormControl>
+
+				<FormControl fullWidth>
+					<InputLabel id="expense-source-filter-label">Fonte</InputLabel>
+					<Select
+						labelId="expense-source-filter-label"
+						label="Fonte"
+						value={selectedSourceId ?? ""}
+						onChange={(event) =>
+							handleSourceChange(
+								event.target.value === "" ? "" : Number(event.target.value),
+							)
+						}
+					>
+						<MenuItem value="">Todas</MenuItem>
+						{sources.map((source) => (
+							<MenuItem key={source.id} value={source.id}>
+								{source.name}
+							</MenuItem>
+						))}
+					</Select>
+				</FormControl>
+			</Stack>
 			<TextField
 				fullWidth
 				label="Buscar despesas"

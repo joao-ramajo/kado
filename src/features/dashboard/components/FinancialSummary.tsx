@@ -10,30 +10,20 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import {
-	DASHBOARD_SUMMARY_CARD_MAP,
 	DASHBOARD_SUMMARY_CARD_TONES,
-	DEFAULT_DASHBOARD_SUMMARY_CARD_IDS,
+	DASHBOARD_SUMMARY_CARDS,
 	type SummaryCardDefinition,
 } from "../constants/summaryCards";
-import { useDashboardSummaryCardsQuery } from "../hooks/useDashboardSummaryCards";
 import { useGetSummaryQuery } from "../hooks/useGetSummary";
 
 export function FinancialSummary() {
 	const { data, isPending, isError } = useGetSummaryQuery();
-	const { data: preferenceData, isPending: isPreferencePending } =
-		useDashboardSummaryCardsQuery();
 
 	useEffect(() => {
 		if (isError) {
 			toast.error("Erro ao buscar resumos.");
 		}
 	}, [isError]);
-
-	const selectedCardIds =
-		preferenceData?.card_ids ?? DEFAULT_DASHBOARD_SUMMARY_CARD_IDS;
-	const cards = selectedCardIds.map(
-		(cardId) => DASHBOARD_SUMMARY_CARD_MAP[cardId],
-	);
 
 	const getCardValue = (card: SummaryCardDefinition) => {
 		const value = data?.[card.valueKey];
@@ -87,7 +77,7 @@ export function FinancialSummary() {
 					Resumo Financeiro
 				</Typography>
 				<Typography color="text.secondary">
-					Você pode escolher quais 3 indicadores quer acompanhar no painel.
+					Visão consolidada com os principais indicadores do período.
 				</Typography>
 			</Stack>
 
@@ -102,11 +92,11 @@ export function FinancialSummary() {
 					gap: 2,
 				}}
 			>
-				{cards.map((card) => {
+				{DASHBOARD_SUMMARY_CARDS.map((card) => {
 					const Icon = card.icon;
 					const displayValue = getCardValue(card);
 					const tone = getCardTone(card, displayValue);
-					const isLoading = isPending || isPreferencePending;
+					const isLoading = isPending;
 
 					return (
 						<Card

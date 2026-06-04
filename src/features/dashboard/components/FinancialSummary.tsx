@@ -32,29 +32,14 @@ export function FinancialSummary() {
 	};
 
 	const getCardTone = (card: SummaryCardDefinition, value: number) => {
-		if (
-			(card.id === "current_balance" ||
-				card.id === "expected_total" ||
-				card.id === "final_balance") &&
-			value < 100
-		) {
+		if (card.id === "expected_total" && value < 100) {
 			return {
 				color: "#ef4444",
 				bgColor: "#fef2f2",
 			};
 		}
 
-		if (
-			[
-				"total_expense",
-				"total_expense_30_days",
-				"expected_expenses",
-				"total_expense_pending",
-				"spent_today",
-				"spent_month",
-			].includes(card.id) &&
-			value >= 5_000_000
-		) {
+		if (card.id === "total_expense" && value >= 5_000_000) {
 			return {
 				color: "#ef4444",
 				bgColor: "#fef2f2",

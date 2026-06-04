@@ -204,11 +204,12 @@ export function RecentExpenses() {
 						labelId="expense-category-filter-label"
 						label="Categoria"
 						value={selectedCategoryId ?? ""}
-						onChange={(event) =>
+						onChange={(event) => {
+							const { value } = event.target;
 							handleCategoryChange(
-								event.target.value === "" ? "" : Number(event.target.value),
-							)
-						}
+								typeof value === "string" && value === "" ? "" : Number(value),
+							);
+						}}
 					>
 						<MenuItem value="">Todas</MenuItem>
 						{categories.map((category) => (
@@ -225,11 +226,12 @@ export function RecentExpenses() {
 						labelId="expense-source-filter-label"
 						label="Fonte"
 						value={selectedSourceId ?? ""}
-						onChange={(event) =>
+						onChange={(event) => {
+							const { value } = event.target;
 							handleSourceChange(
-								event.target.value === "" ? "" : Number(event.target.value),
-							)
-						}
+								typeof value === "string" && value === "" ? "" : Number(value),
+							);
+						}}
 					>
 						<MenuItem value="">Todas</MenuItem>
 						{sources.map((source) => (
